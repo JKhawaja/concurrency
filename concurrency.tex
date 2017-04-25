@@ -1,0 +1,31 @@
+\documentclass[english]{article}
+\usepackage{concurrency}
+\begin{document}
+	
+\hypersetup{
+	colorlinks=true, %set true if you want colored links
+	linktoc=all,     %set to all if you want both sections and subsections linked
+	linkcolor=blue,  %choose some color if you want links to stand out
+}
+
+\onecolumn
+\title{Avoiding Undesired Behavior in Concurrently Accessed Data Structures}
+\author{Jeremy Khawaja}
+\maketitle
+
+\begin{abstract}
+		The key to avoiding inefficiency and inconsitency in concurrently accessed structures is having a well-defined concurrent access algorithm. There are many approaches available to use. We devise a a method using spatial and temporal dependency graphs to manage access to arbitrary data structures.
+\end{abstract}
+\twocolumn
+
+\input{./tex/intro.tex}
+\input{./tex/ddag.tex}
+\input{./tex/algorithm.tex}
+\input{./tex/verification.tex}
+\input{./tex/memory.tex}
+\input{./tex/conclusions.tex}
+\input{./tex/references.tex}
+
+\onecolumn
+
+\end{document}
