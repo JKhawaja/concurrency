@@ -33,13 +33,13 @@ A boundary node is a node without dependencies and can thus always proceed infin
 
 Threads with access to boundary nodes can modify the structure of assigned independent at those nodes.
 
-- Modifying the structure itself: e.g. adding or deleting unique independents, modifying an independents dependencies list, or just modifying which part of the structure a unique independent is referring too.
+- *Modifying the structure itself:* e.g. adding or deleting unique independents, modifying an independents dependencies list, or just modifying which part of the structure a unique independent is referring too.
     + this is easy when we have e.g. a 2-Regular Tree with only 3 nodes, then we can create three independents: A (the root), B (the left sub-tree), and C (the right sub-tree), now adding or deleting nodes to the tree is handled exclusively by B OR C (this is also simple for n-Regular Trees in general).
     + Invariants: in the above example we assume that the root nodes for the B and C sub-trees will not dissapear. So, when defining unique independents as sub-structures it can be helpful to be able to note if any of the structure is "immutable". Or even more precisely, which parts of the structure are invariant under a modification or class of modifications.
     + the question becomes: how do we generalize this to arbitrary structures?
         * Boundary Nodes
         * perhaps it is outside the scope of this paper ...
-- Dynamic Dependency Relationships
+- *Dynamic Dependency Relationships*
     + What if dependencies were not just spatial but also temporal? Like, what if a particuliar write on one independent needed to happen before a different write on another independent, but that this was not necessarily true for all writes for these independents?
     + If threads are essentially just atomic operations, then we can create a virtual dependency complex that connects the two unique independents to the final write thread and then that final write thread is virtually dependent on the initial write thread.
         * virtual dependencies are thread dependencies only, and not independent dependencies i.e. they are purely temporal dependencies on the same spatial location.
@@ -58,6 +58,7 @@ This can be used to provide a specific degree of consistency for reads on the st
 Section wil contain: Go Code Example (using goRoutine access to a shared data structure)
 
 - Unordered (unique) Set of Unique Independents (must not be greater than the number of concurrent processes accessing the structure)
+    + perform *cycle detection* on independents graph
 - Unordered (unique) Set of dependencies
 - Every thread is assigned:
     + a Unique-Independent (and its list of dependencies)
@@ -115,3 +116,6 @@ Section will contain: Rust Code (showing custom memory management for DDAG concu
 - Concurrent Data Structures
 - Concurrencykit.org - Lock-Free Algorithms
 - Deadlocks: http://www.javacreed.com/what-is-deadlock-and-how-to-prevent-it/
+- Dependency Graph: https://en.wikipedia.org/wiki/Dependency_graph
+- Topological Sorting: https://en.wikipedia.org/wiki/Topological_sorting
+- Cycle Detection
