@@ -13,6 +13,10 @@
 *.cb
 *.cb2
 
+## To do files
+
+*.todo
+
 ## Intermediate documents:
 *.dvi
 *-converted-to.*
