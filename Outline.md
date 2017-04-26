@@ -8,6 +8,7 @@
 - Conflicts
     + redudant writes
     + out-of-order modifications
+    + data-races
     + blocking (can still happen)
     + deadlocking (can never happen in our system as defined)
         * deadlock: A deadlock is a state where two, or more, threads are blocked waiting for the other blocked waiting thread (or threads) to finish and thus none of the threads will ever complete
