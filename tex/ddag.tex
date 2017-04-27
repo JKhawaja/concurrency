@@ -1,1 +1,66 @@
 \section{Dependency DAGs}
+
+We begin our discussion around the crux of avoiding undesirable behavior: \textit{Ordering}. In the literature: \textit{linearization}.
+
+In our defintion of a CDS (\ref{cds}), we discussed reading and writing data to a structure as well as changing the structure of the CDS itself. We will label all of these processes as: \textit{access types}. More specifically: these are prcoedural types. Everytime we try to execute an access type we will call this an: \textit{access procedure}.
+
+We do not want to limit ourselves to some pre-defined set of operations such as ``reads, writes, appends, removals, etc.''. These do represent a sort of canonical basis for all possible access types, but we want to be flexible enough to allow for any and all possible methods of accessing a CDS.
+
+Thus, we need to find a way to ensure the linearization, or correct ordering, of access procedures. 
+
+For example, when and how will we gurantee that one access procedure completes before another one is started? The how is simple: we can sequentially order our access procedures i.e. apply a total ordering to all access procedures across our system. But this can be accomplished by a single process. This brings us to addressing the \textit{when} of ordering access procedures. 
+
+Not all access procedures will need to be totally-ordered i.e. a complete (mathematical) linearization of our access procedures is not a necessity. It is this lack of necessity that allows us to have the possibility of concurrency in the first place.
+
+So, when is ordering a necessity? The only time two access procedures need an order is if one access procedure is \textit{dependent} on the other. We do not specify the reason for the dependency, but if a dependency exists (at all) then it is easy to see that an ordering is necessary.
+
+Since the necessity for an ordering is not always required, we see that a complete linearization of our system is not always a necessity. Rather, the access procedures which carry a dependency on other access procedures create a \textit{partial ordering} for our system.
+
+More specifically: all of our dependencies allows us to have a \textit{dependency graph} for our access procedures.
+
+All good, right?! Sort of. Sadly, this does not resolve all of our problems. We have not discussed exactly how we will order access procedures in terms of processes.
+
+First, let's diverge quickly back into a discussion of our CDS. Let's try to formalize it:
+
+\begin{con-def}[Concurrent Data Structure (2)]
+	\label{cds-graph}
+	A \textit{concurrent data structure} is a graph $\mathcal{G} = \{\mathsf{N}, \mathsf{E}\}$ composed of $|\mathsf{N}|$ nodes and $|\mathsf{E}|$ edges, that is used to index data of type $\mathcal{T}$, and is allowed to be accessed by some set of processes $\mathcal{P}_{i}$ via some set of access types $\mathcal{A}_{t}$.
+\end{con-def}
+
+This helps us to remember that a data structure is a spatial object. It carries a certain topology and is invariant through time unless modified. Thus, it is completely possible that while access procedures may not carry a dependency: nodes of our CDS just might! The set of all nodular-dependencies will be called the: \textit{set of spatial dependencies}. These dependencies may be the dependencies that an access procedure ``adopts'' in order to consider itself dependent on another access procedure.
+
+For example: if access procedure $\mathit{A}$ is trying to write to node $\mathrm{n}_{1} \in \mathsf{N}$ and access procedure $\mathit{B}$ is trying to write to node $\mathrm{n}_{2} \in \mathsf{N}$, but $\mathrm{n}_{2} < \mathrm{n}_{1}$ (where $<$ is a dependency arrow), then we would want to perform $\mathit{B}$ before $\mathit{A}$.
+
+This set of spatial dependencies only covers the dependency relationships between certain nodes in our graph. But what if we wanted sub-graphs of our CDS to be dependent or more importantly \textit{independent} of other sub-graphs of our CDS?
+
+Let's define this:
+
+\begin{con-def}[Unique-Independent]
+	\label{independents}
+	Any sub-graph $\mathcal{S} \subseteq \mathcal{G}$ that does not contain any internal spatial dependencies is called an \textit{unqiue-independent} of our CDS.
+\end{con-def}
+
+Unique-Independents (UIs) can almost be seen as a \textit{virtualization} of our CDS's spatial topology.
+
+Unique-Independents can obviously have external dependencies i.e. be dependent on each other. Thus, the set of UIs of our CDS forms a dependency graph. Although, since UIs do not have to have other UIs as dependencies, we simply qualify this as a: dependencies list.
+
+\begin{con-def}[Dependency List]
+	\label{dependency-list}
+	A \textit{dependencies list} for a CDS is the adjancency list of our disjointed graph of unique-independents.
+\end{con-def}
+
+\if
+For any algebraists reading this: our dependencies list can almost be considered an \textit{anti-group} since inverses of ordered pairs \textit{cannot} exist in our list. An identity element cannot exist as the composition of any two objects cannot return to itself as that implies a cyclic dependency. Associativity and closure can exist for a basic composition operation, but objects in our dependency list can only be composed functionally (i.e. the last element of the ordered pair must be the first element of the ordered pair it is being composed with) -- so this composition only applies to a subset of our dependencies list. Thus, our dependencies list really becomes a sort of quasi-antithesis to a group.
+\fi
+
+Don't let the name ``unique-independent'' fool you. There is no requirement for an independent to be spatially-unique. In other words, a unique-independent can share nodes from the CDS with other UIs. The only thing that makes a unique-independent ``unique'' is that it is in totality unique as to the nodes it applies too. 
+
+So while, a unique-independent can be completely subsumed by another unique-independent spatially, it will never refer to the exact same set of nodes that another unique-independet is referring too. And it is this notion of ``uniqueness'' that allows it to be an independent.
+
+This may seem like a unique-independent that subsumes UIs with dependencies that are other subsumed UIs conflicts with our definition (\ref{independents}) of an unique-independent. 
+
+However, what we have to notice is that a unique-independent is evaluated seperately from other UIs i.e. a unique-independent whom subsumes other UIs and their dependencies is only allowed to be addressed after all those other UIs have been addressed.
+
+So, while an independent has ``no spatial dependencies'' it can still subsume UI-dependencies.
+
+Let's tie UIs back in with our previous discussion about ordering access prodecures ...

@@ -3,8 +3,10 @@
 ## Introduction
 
 - Concurrency Structures: Definition
+    + Definition: Lock
+    + Definition: Fine-Grained Locking
     + Combining Trees
-        * as well as the fact that only leaf nodes are assigned a thread i.e. the number of leaf nodes equals the number of threads
+        * only leaf nodes are assigned a thread i.e. the number of leaf nodes equals the number of threads
 - Conflicts
     + redudant writes
     + out-of-order modifications
