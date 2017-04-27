@@ -18,13 +18,14 @@
 \usepackage{textcomp}
 \usepackage{framed}
 \usepackage{tikz}
+\usepackage{minted}
 \usetikzlibrary{cd}
 
 % Theorem Styles:
 
 \newtheoremstyle{example}% name of style
-  {10pt}{10pt} % Space Above, Space Below
-  {\rmfamily}{20pt} % Body Font, Indentation Amount
+  {5pt}{5pt} % Space Above, Space Below
+  {\rmfamily}{5pt} % Body Font, Indentation Amount
   {\scshape}{:} % Header Font, Header Punctuation
   {.7em}{} % Space between Header and Body, Headspec
 
@@ -47,14 +48,14 @@
   {.5em}{} % Space between Header and Body, Headspec
 
 \newtheoremstyle{theorem}% name of style
-  {10pt}{10pt} % Space Above, Space Below
+  {5pt}{5pt} % Space Above, Space Below
   {\rmfamily}{10pt} % Body Font, Indentation Amount
   {\bfseries}{} % Header Font, Header Punctuation
   {.5em}{} % Space between Header and Body, Headspec
 
 \theoremstyle{define}
 
-\newtheorem{con-def}{Def.}[section]
+\newtheorem{con-def}{\textbf{Def.}}[section]
 
 \theoremstyle{example}
 

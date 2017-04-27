@@ -2,15 +2,15 @@
 
 We begin our discussion around the crux of avoiding undesirable behavior: \textit{Ordering} (in the literature: \textit{linearization}).
 
-In our defintion of a CDS (\ref{cds}), we discussed reading and writing data to a structure as well as changing the structure of the CDS itself. We will label all of these processes as: \textit{access types}. More specifically: these are prcoedural types. Everytime we try to execute an access type we will call this an: \textit{access procedure}.
+In our definition of a CDS (\ref{cds}), we discussed reading and writing data to a structure as well as changing the structure of the CDS itself. We will label all of these processes as: \textit{access types}. More specifically: these are procedural types. Every time we try to execute an access type we will call this an: \textit{access procedure}.
 
 We do not want to limit ourselves to some pre-defined set of operations such as ``reads, writes, appends, removals, etc.''. These do represent a sort of canonical basis for all possible access types, but we want to be flexible enough to allow for any and all possible methods of accessing a CDS.
 
 Thus, we need to find a way to ensure the linearization, or correct ordering, of access procedures. 
 
-For example, when and how will we gurantee that one access procedure completes before another one is started? The how is simple: we can sequentially order our access procedures i.e. apply a total ordering to all access procedures across our system. 
+For example, when and how will we guarantee that one access procedure completes before another one is started? The how is simple: we can sequentially order our access procedures i.e. apply a total ordering to all access procedures across our system. 
 
-But that can be accomplished by using only a single process without the necessity for concurrenct processes. Thus we need to address the \textit{when} of ordering access procedures using multiple concurrent processes.
+But that can be accomplished by using only a single process without the necessity for concurrent processes. Thus we need to address the \textit{when} of ordering access procedures using multiple concurrent processes.
 
 Not all access procedures will need to be totally-ordered i.e. a complete (mathematical) linearization of our access procedures is not always a necessity. It is this \textit{lack of necessity of a total ordering} that allows us to have the possibility of concurrency in the first place. 
 
@@ -43,7 +43,7 @@ Let's define this:
 
 \begin{con-def}[Unique-Independent]
 	\label{independents}
-	Any sub-graph $\mathcal{S} \subseteq \mathcal{G}$ that does not contain any internal spatial dependencies is called an \textit{unqiue-independent} of our CDS.
+	Any sub-graph $\mathcal{S} \subseteq \mathcal{G}$ that does not contain any internal spatial dependencies is called an \textit{unique-independent} of our CDS.
 \end{con-def}
 
 Unique-Independents (UIs) can almost be seen as a \textit{virtualization} of our CDS's spatial topology.
@@ -52,46 +52,87 @@ Unique-Independents can obviously have external dependencies i.e. be dependent o
 
 \begin{con-def}[Dependency List]
 	\label{dependency-list}
-	A \textit{dependencies list} for a CDS is the adjancency list of our disjointed graph of unique-independents.
+	A \textit{dependencies list} for a CDS is the adjacency list of our disjointed graph of unique-independents.
 \end{con-def}
 
 \if
-For any algebraists reading this: our dependencies list can almost be considered an \textit{anti-group} since inverses of ordered pairs \textit{cannot} exist in our list. An identity element cannot exist as the composition of any two objects cannot return to itself as that implies a cyclic dependency. Associativity and closure can exist for a basic composition operation, but objects in our dependency list can only be composed functionally (i.e. the last element of the ordered pair must be the first element of the ordered pair it is being composed with) -- so this composition only applies to a subset of our dependencies list. Thus, our dependencies list really becomes a sort of quasi-antithesis to a group.
+For any algebraist reading this: our dependencies list can almost be considered an \textit{anti-group} since inverses of ordered pairs \textit{cannot} exist in our list. An identity element cannot exist as the composition of any two objects cannot return to itself as that implies a cyclic dependency. Associativity and closure can exist for a basic composition operation, but objects in our dependency list can only be composed functionally (i.e. the last element of the ordered pair must be the first element of the ordered pair it is being composed with) -- so this composition only applies to a subset of our dependencies list. Thus, our dependencies list really becomes a sort of quasi-antithesis to a group.
 \fi
 
-Don't let the name ``unique-independent'' fool you. There is no requirement for an independent to be spatially-unique. In other words, a unique-independent can share nodes from the CDS with other UIs. The only thing that makes a unique-independent ``unique'' is that it is in totality unique as to the nodes it applies too. 
+Don't let the name ``unique-independent'' fool you. There is no requirement for an independent to be spatially-unique. In other words, a UI can share nodes from the CDS with other UIs. The only thing that makes a unique-independent ``unique'' is that it is in totality unique as to the nodes it applies too. 
 
-So while, a unique-independent can be completely subsumed by another unique-independent spatially, it will never refer to the exact same set of nodes that another unique-independet is referring too. And it is this notion of ``uniqueness'' that allows it to be an independent.
+So while, a unique-independent can be completely subsumed by another unique-independent spatially, it will never refer to the exact same set of nodes that another unique-independent is referring too. And it is this notion of ``uniqueness'' that allows it to be an independent.
 
 This may seem like a unique-independent that subsumes UIs with dependencies that are other subsumed UIs conflicts with our definition (\ref{independents}) of an unique-independent. 
 
-However, what we have to notice is that a unique-independent is evaluated seperately from other UIs i.e. a unique-independent whom subsumes other UIs and their dependencies is only allowed to be addressed after all those other UIs have been addressed.
+However, what we have to notice is that a unique-independent is evaluated separately from other UIs i.e. a UI that subsumes other UIs and their dependencies is only allowed to be addressed after all those other UIs have been addressed.
 
-So, while an independent has ``no spatial dependencies'' it can still subsume UI-dependencies.
+So, while an independent has ``no spatial dependencies'' it can still subsume UI-dependencies. One the most important points to take away from this section is the fact that: the structure of the CDS itself has zero semblance on how we design our concurrent accesses, only the structure of our UI-DDAG (disjoint directed acyclic graph) does.
 
 \subsection{Temporal Dependencies}
 
 Now that we have a way to virtualize a CDS using UIs, let's tie UIs back in with our previous discussion about ordering access procedures.
 
-We can now use our UI virtualization of our CDS to assign an access procedure to a particuliar UI. More precisely, we want an access procedure to be an access type + UI.
+We can now use our UI virtualization of our CDS to assign an access procedure to a particular UI. More precisely, we want an access procedure to be an access type + UI.
 
-\[ \mathsf{A}_{p} := \mathsf{A}_{t} \oplus \mathsf{I} \]
+\begin{minted}{go}
+type AccessProcedure struct{
+	A AccessType // access-type
+	UID int // unique-independent id
+}
+\end{minted}
 
 Since our dependency list of UIs based off this virtualization represents all possible spatial dependencies in our CDS it can be used to help us apply an ordering to access procedures. However, a spatial dependency is not the only way access procedures can be ordered i.e. be dependent on each other. The other way access procedures can have is an ordering: is \textit{per UI}.
 
-In other words, we can still order all access procedures that have been assigned to the same UI. For example, will read access procedures always take precedence over write access procedures for a particuliar UI? What if we wanted to be more specific (fine-grained) than that and give \textit{certain} access procedures precedence over \textit{certain} write access procedures?
+In other words, we can still order all access procedures that have been assigned to the same UI. For example, will read access procedures always take precedence over write access procedures for a particular UI? What if we wanted to be more specific (fine-grained) than that and give \textit{certain} access procedures precedence over \textit{certain} write access procedures?
 
 It would be impossible to suggest that access procedures that apply to a specific UI could always be totally-ordered. Thus, we arrive at the same situation we were in before with trying to linearize our system. Thankfully, we have the answer: a dependency graph (list). Except, this time our dependencies list are access procedures assigned to the same UI. 
 
 Whereas we had an UIs dependency list that represented a virtualization of the spatial dependencies, we now have a procedures dependency list that virtualizes the temporal dependencies of our CDS (per UI). Every UI will have it's own temporal dependencies list and every node in this disjoint dependencies graph will be a specific access procedure.
 
-\subsection{Processes}
+\subsection{Atomicity}
 
-We still have to come back around to combining our ordering of dependencies with the processes in our system.
+We still have to come back around to combining our ordering of dependencies with the processes in our system. But, first we should consider when two access procedures can be simply sequentially ordered. If some set of access procedures which apply to the same UI must be linearly ordered then we can consider the sequence of those procedures as being a new access procedure.
 
-A Thread is about atomicity: a thread can be assigned to each node, and is assigned to a nodes child if the node only has one child (i.e. a linearized set of nodes would all be on the same thread -- and could be considered combined atomically).
+This can technically also apply to any sequence of access procedures (assigned to the same UI) that are not dependent on one another. If we want to reduce the total number of individual procedures in our system (i.e. reduce the number of nodes in our temporal dependency graph for a UI) then we can combine access procedures that are either linearly dependent or independent into a single access procedure.
 
-Boundary Nodes on our UI dependency graph are useful for determning what access types are allowed for a UI.
+The allowance for this combination is what we call: \textit{atomicity}. Every access procedure must be \textit{atomic}.
+
+\begin{con-def}[Atomic Procedures]
+	\label{atomic-procedures}
+	Any access procedure or sequence of procedures that appear to the rest of the system as a single operation on a UI are called: \textit{atomic procedures}.
+\end{con-def}
+
+All access procedures \textit{should be} atomic procedures. But, arbitrary sequences of procedures are not necessarily atomic. We want to specifically classify sequences of access procedures that are atomic.
+
+\begin{con-def}[Thread]
+	\label{thread}
+	A \textit{thread} is any sequence of access procedures that can be classified as an atomic procedure. In terms of a dependency graph: a thread is assigned to a node and is also assigned to the node's dependencies iff the dependent node has only one dependency \textit{and} the dependency has only one dependent. Any sequence of nodes each with at most one dependency and one dependent can be "combined" and considered: a single Thread.
+\end{con-def}
+
+Using threads makes our virtualization complexes more succinct, as any and all sequences of access procedures are either necessarily ordered or are considered single atomic procedures. It also becomes that every node in our disjoint dependency graphs are now a thread.
+
+\begin{props}[Nodes are Threads]
+	\label{nodes-are-threads}
+	Every node in our disjoint temporal dependency graphs is a thread (iff we maintain that all access procedures must be atomic procedures).
+\end{props}
+
+\begin{con-cor}[Thread DDAG]
+	\label{thread-ddag}
+	For every disjoint dependency graph (a disjoint directed acyclic graph i.e. DDAG) of access procedures there is an equivalent disjoint dependency graph of threads.
+\end{con-cor}
+
+In the next section of this paper we will discuss how we will ensure atomicity for access procedures. But, for now, we simply hold this assumption as a given precondition.
+
+\subsection{Invariance}
+
+The final part of discussing disjoint directed acyclic graphs and their equivalent dependencies lists is determining if an access type is allowed to not allowed to be used on a specific UI (or even at a specific time).
+
+Boundary Nodes on our UI dependency graph are useful for determining what access types are allowed for a UI.
+
+\begin{con-def}[Boundaries]
+	\label{boundaries}
+\end{con-def}
 
 \begin{con-ex} [2-Regular Tree]
 	\label{2-regular-tree}
@@ -102,4 +143,8 @@ Boundary Nodes on our UI dependency graph are useful for determning what access 
 
 In Example \ref{2-regular-tree}, we see that modifying the structure of our tree is dependent on what we want to preserve. Thus, we do not allow UIs with dependencies to have the ability to use access types that modify our CDS structure. But, we could if we wanted too. Thus, each UI could be assigned a list of \textit{immutables}. More specifically, a list of nodes in the CDS that are \textit{invariant} to certain access types.
 
-Note: immutability is only a kind of invariance. A low-resolution invariance which blanket-denies all modification access types.
+Note: immutability is only a kind of invariance. A low-resolution invariance which blanket-denies all modification access types i.e. leaves the value of the data invariant under access procedures that are of a value modification access type.
+
+
+
+

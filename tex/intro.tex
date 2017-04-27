@@ -25,6 +25,8 @@ It is also important to specify what exactly we mean by \textit{undesirable beha
 	The primary potential behaviors we will be focused on avoiding in this paper are: redundancy, data races, access blocking, and a lack of any consistency guarantee.
 \end{con-def}
 
+For example, some of the potential behavioral problems with locks can vary from things like taking too many locks or too few locks, to taking the wrong locks or taking locks in the wrong order.
+
 Essentially we are trying to avoid problems with inefficiency and inconsistency. Namely, we would like to avoid overwriting values that have already been written. And we would also like to avoid problems that are usually seen as a lack of linearization e.g. a value being overwritten with an out-of-date value.
 
 Of course, every access management implementation will require a degree of tradeoff. For example, are we allowed to read a value from our concurrent data structure at any time or must we always guarantee that all currently-in-progress writes have been completed? We will not focus on tradeoff choices in this paper. How a developer may choose to utilize the algorithm in this paper will depend on the developers personal choice of system requirements. But we do note that the algorithm will be rather flexible in varying the degree of consistency for concurrently accessing a structure.
