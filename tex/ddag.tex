@@ -1,6 +1,6 @@
 \section{Dependency DAGs}
 
-We begin our discussion around the crux of avoiding undesirable behavior: \textit{Ordering}. In the literature: \textit{linearization}.
+We begin our discussion around the crux of avoiding undesirable behavior: \textit{Ordering} (in the literature: \textit{linearization}).
 
 In our defintion of a CDS (\ref{cds}), we discussed reading and writing data to a structure as well as changing the structure of the CDS itself. We will label all of these processes as: \textit{access types}. More specifically: these are prcoedural types. Everytime we try to execute an access type we will call this an: \textit{access procedure}.
 
@@ -8,17 +8,23 @@ We do not want to limit ourselves to some pre-defined set of operations such as 
 
 Thus, we need to find a way to ensure the linearization, or correct ordering, of access procedures. 
 
-For example, when and how will we gurantee that one access procedure completes before another one is started? The how is simple: we can sequentially order our access procedures i.e. apply a total ordering to all access procedures across our system. But this can be accomplished by a single process. This brings us to addressing the \textit{when} of ordering access procedures. 
+For example, when and how will we gurantee that one access procedure completes before another one is started? The how is simple: we can sequentially order our access procedures i.e. apply a total ordering to all access procedures across our system. 
 
-Not all access procedures will need to be totally-ordered i.e. a complete (mathematical) linearization of our access procedures is not a necessity. It is this lack of necessity that allows us to have the possibility of concurrency in the first place.
+But that can be accomplished by using only a single process without the necessity for concurrenct processes. Thus we need to address the \textit{when} of ordering access procedures using multiple concurrent processes.
+
+Not all access procedures will need to be totally-ordered i.e. a complete (mathematical) linearization of our access procedures is not always a necessity. It is this \textit{lack of necessity of a total ordering} that allows us to have the possibility of concurrency in the first place. 
+
+The degree to which our system can behave non-linearly is exactly the minimal degree to which it can be composed of concurrent processes. (Note: by "system" we are referring to a set of processes plus our CDS).
 
 So, when is ordering a necessity? The only time two access procedures need an order is if one access procedure is \textit{dependent} on the other. We do not specify the reason for the dependency, but if a dependency exists (at all) then it is easy to see that an ordering is necessary.
 
 Since the necessity for an ordering is not always required, we see that a complete linearization of our system is not always a necessity. Rather, the access procedures which carry a dependency on other access procedures create a \textit{partial ordering} for our system.
 
-More specifically: all of our dependencies allows us to have a \textit{dependency graph} for our access procedures.
+More specifically: all of our dependencies allows us to have a (disjoint )\textit{dependency graph} for our access procedures.
 
 All good, right?! Sort of. Sadly, this does not resolve all of our problems. We have not discussed exactly how we will order access procedures in terms of processes.
+
+\subsection{Spatial Dependencies}
 
 First, let's diverge quickly back into a discussion of our CDS. Let's try to formalize it:
 
@@ -63,4 +69,37 @@ However, what we have to notice is that a unique-independent is evaluated sepera
 
 So, while an independent has ``no spatial dependencies'' it can still subsume UI-dependencies.
 
-Let's tie UIs back in with our previous discussion about ordering access prodecures ...
+\subsection{Temporal Dependencies}
+
+Now that we have a way to virtualize a CDS using UIs, let's tie UIs back in with our previous discussion about ordering access procedures.
+
+We can now use our UI virtualization of our CDS to assign an access procedure to a particuliar UI. More precisely, we want an access procedure to be an access type + UI.
+
+\[ \mathsf{A}_{p} := \mathsf{A}_{t} \oplus \mathsf{I} \]
+
+Since our dependency list of UIs based off this virtualization represents all possible spatial dependencies in our CDS it can be used to help us apply an ordering to access procedures. However, a spatial dependency is not the only way access procedures can be ordered i.e. be dependent on each other. The other way access procedures can have is an ordering: is \textit{per UI}.
+
+In other words, we can still order all access procedures that have been assigned to the same UI. For example, will read access procedures always take precedence over write access procedures for a particuliar UI? What if we wanted to be more specific (fine-grained) than that and give \textit{certain} access procedures precedence over \textit{certain} write access procedures?
+
+It would be impossible to suggest that access procedures that apply to a specific UI could always be totally-ordered. Thus, we arrive at the same situation we were in before with trying to linearize our system. Thankfully, we have the answer: a dependency graph (list). Except, this time our dependencies list are access procedures assigned to the same UI. 
+
+Whereas we had an UIs dependency list that represented a virtualization of the spatial dependencies, we now have a procedures dependency list that virtualizes the temporal dependencies of our CDS (per UI). Every UI will have it's own temporal dependencies list and every node in this disjoint dependencies graph will be a specific access procedure.
+
+\subsection{Processes}
+
+We still have to come back around to combining our ordering of dependencies with the processes in our system.
+
+A Thread is about atomicity: a thread can be assigned to each node, and is assigned to a nodes child if the node only has one child (i.e. a linearized set of nodes would all be on the same thread -- and could be considered combined atomically).
+
+Boundary Nodes on our UI dependency graph are useful for determning what access types are allowed for a UI.
+
+\begin{con-ex} [2-Regular Tree]
+	\label{2-regular-tree}
+
+	We consider boundary nodes of a UI dependency graph for a 2-Regular Tree CDS.
+
+\end{con-ex}
+
+In Example \ref{2-regular-tree}, we see that modifying the structure of our tree is dependent on what we want to preserve. Thus, we do not allow UIs with dependencies to have the ability to use access types that modify our CDS structure. But, we could if we wanted too. Thus, each UI could be assigned a list of \textit{immutables}. More specifically, a list of nodes in the CDS that are \textit{invariant} to certain access types.
+
+Note: immutability is only a kind of invariance. A low-resolution invariance which blanket-denies all modification access types.
