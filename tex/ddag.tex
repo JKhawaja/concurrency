@@ -67,13 +67,17 @@ This may seem like a unique-independent that subsumes UIs with dependencies that
 
 However, what we have to notice is that a unique-independent is evaluated separately from other UIs i.e. a UI that subsumes other UIs and their dependencies is only allowed to be addressed after all those other UIs have been addressed.
 
-So, while an independent has ``no spatial dependencies'' it can still subsume UI-dependencies. One the most important points to take away from this section is the fact that: the structure of the CDS itself has zero semblance on how we design our concurrent accesses, only the structure of our UI-DDAG (disjoint directed acyclic graph) does.
+So, while an independent has ``no spatial dependencies'' it can still subsume UI-dependencies. 
+
+One of the most important points to take away from this section is the fact that: the structure of the CDS itself has zero semblance of how we design our concurrent accesses, only the structure of our UI-DDAG (disjoint directed acyclic graph) does.
 
 \subsection{Temporal Dependencies}
 
-Now that we have a way to virtualize a CDS using UIs, let's tie UIs back in with our previous discussion about ordering access procedures.
+Now that we have a way to virtualize a CDS using UIs (in a spatial manner), let's tie UIs back in with our previous discussion about ordering access procedures.
 
-We can now use our UI virtualization of our CDS to assign an access procedure to a particular UI. More precisely, we want an access procedure to be an access type + UI.
+We can now use the UI (spatial) virtualization of our CDS to assign an access procedure to a particular UI. More precisely, we want an access procedure to be composed of an access type and a UI assignment. 
+
+We can provide a brief pseudo-code example written in the Go programming language syntax.
 
 \begin{minted}{go}
 type AccessProcedure struct{
@@ -153,7 +157,7 @@ WHAT IF WE WANTED UIs TO BE DYNAMIC?? CAN A UI HAVE A LIFECYCLE?
 
 \subsection{Invariance}
 
-The final part of discussing disjoint directed acyclic graphs and their equivalent dependencies lists is determining if an access type is allowed to not allowed to be used on a specific UI (or even at a specific time).
+The final part of discussing disjoint directed acyclic graphs and their equivalent dependencies lists is determining if an access type is allowed or not allowed to be used on a specific UI (or even at a specific time).
 
 Boundary Nodes on our UI dependency graph are useful for determining what access types are allowed for a UI.
 
@@ -172,13 +176,13 @@ In Example \ref{2-regular-tree}, we see that modifying the structure of our tree
 
 Note: immutability is only a kind of invariance. A low-resolution invariance which blanket-denies all modification access types i.e. leaves the value of the data invariant under access procedures that are of a value modifier access type.
 
-
 \subsection{Review}
-
 
 Spatial Dependencies are dependency definitions that last the lifespan of the CDS and apply to all access types (and threads) that are assigned to the UIs involved in the dependency relationship.
 
-Temporal Dependencies are dependency definitions that last the lifespan of the UI
+Temporal Dependencies are dependency definitions that last the lifespan of the UI and apply to a specific access procedure that is assigned to a single UI.
+
+Virtual Dependencies are dependency definitions that have a lifespan shorter than the CDS (or UI that they are assigned to) and can be assigned to multiple UIs.
 
 
 
