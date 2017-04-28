@@ -2,18 +2,12 @@
 
 ## Dependency DAGs (DDAGs)
 
-The total change to the structure can be considered completed if every node in the DDAG is marked completed.
+Side-point: every node (both real and virtual independents) can be represented by 4 numbers (Spatial dependencies, temporal dependencies, spatial dependents, temporal dependents).
 
-A thread is allowed to start it's modification if the list of independent dependencies are marked completed.
-
-What happens if we want to use more threads than there are unique independents? This is when we introduce: **Virtual DDAGs**
-
-Side-point: every node (both real and virtual independents) can be represented by 4 numbers (real dependencies, virtual dependencies, real dependents, virtual dependents).
-
-- Real Nodes: {n, m, l, 0}
-- Real Boundary Nodes: {n, m, 0, 0}
-- Virtual Nodes: {0, n, m, l}
-- Virtual Boundary Nodes: {0, 0, n, m}
+- Spatial Nodes: {n, m, l, 0}
+- Spatial Boundary Nodes: {n, m, 0, 0}
+- Temporal Nodes: {0, n, m, l}
+- Temporal Boundary Nodes: {0, 0, n, m}
 
 A boundary node is a node without dependencies and can thus always proceed infinitely often post completion points.
 
@@ -25,13 +19,6 @@ Threads with access to boundary nodes can modify the structure of assigned indep
     + the question becomes: how do we generalize this to arbitrary structures?
         * Boundary Nodes
         * perhaps it is outside the scope of this paper ...
-- *Dynamic Dependency Relationships*
-    + What if dependencies were not just spatial but also temporal? Like, what if a particular write on one independent needed to happen before a different write on another independent, but that this was not necessarily true for all writes for these independents?
-    + If threads are essentially just atomic operations, then we can create a virtual dependency complex that connects the two unique independents to the final write thread and then that final write thread is virtually dependent on the initial write thread.
-        * virtual dependencies are thread dependencies only, and not independent dependencies i.e. they are purely temporal dependencies on the same spatial location.
-        * If the spatial location is multiple independents, then that V-DDAG is called a *Temporary Spatial Dependency Complex*
-    - this will require that garbage collecting virtual dependency complexes will become essential
-    - every thread can be assigned to multiple virtual dependency complexes
 
 ### Operation Priorities as a Partial Ordering for V-DDAGs
 
@@ -40,6 +27,8 @@ V-DDAGs can be ordered by *operation priority* i.e. if `read`s have higher prior
 This can be used to provide a specific degree of consistency for reads on the structure (as to a specific degree for the guarantee of a read having the latest data).
 
 ## Algorithm
+
+goRoutine (Access procedure) Constructor Function: configures goroutines (access procedures) with appropriate information at launch.
 
 Section will contain: Go Code Example (using goRoutine access to a shared data structure)
 
@@ -54,9 +43,15 @@ Section will contain: Go Code Example (using goRoutine access to a shared data s
     + Can we run into an issue with the Assignment Function being blocked from updating its assignment list for a unique independent (??)
     + Assignments can also be classified: e.g. a thread can be assigned to a unique independent but it is only allowed to read from the data structure, whereas another thread can be assigned that is allowed to modify the data, etc.
 
+The total change to the structure can be considered completed if every node in the DDAG is marked completed.
+
 Threads will require to have a starting point and a completion point that can encompass a single modification or a sequence of modifications. A thread can have multiple completion points (similar to generator/async functions in ES6/7). A completion point allows a thread to mark a node in the DDAG as completed which communicates to its dependents that they can proceed. A thread stalls checking that its dependencies are complete so it can proceed past a completion point.
 
-What happens if we have fewer thread than unique independents? In this scenario, we are assuming that each thread can be assigned to multiple independents, and in this case the thread must have an internal degree of consistency (strict consistency usually). The thread must internally perform modifications in their dependency order.
+A thread is allowed to start it's modification if the list of independent dependencies are marked completed.
+
+What happens if we want to use more threads than there are unique independents? This is when we introduce: **Temporal DDAGs**
+
+What happens if we have fewer threads than unique independents? In this scenario, we are assuming that each thread can be assigned to multiple independents, and in this case the thread must have an internal degree of consistency (strict consistency usually). The thread must internally perform modifications in their dependency order. (algorithmically: this just changes the way we construct goRoutines before launching them -- we will focus on making sure that all modifications are pre-ordered within the goroutine beforehand).
 
 The assignment function will assign a single thread per Real Independent and Virtual Independent (which is basically just a thread).
 

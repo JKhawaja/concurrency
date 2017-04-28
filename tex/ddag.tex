@@ -1,4 +1,4 @@
-\section{Dependency DAGs}
+\section{Dependency DDAGs}
 
 We begin our discussion around the crux of avoiding undesirable behavior: \textit{Ordering} (in the literature: \textit{linearization}).
 
@@ -124,6 +124,33 @@ Using threads makes our virtualization complexes more succinct, as any and all s
 
 In the next section of this paper we will discuss how we will ensure atomicity for access procedures. But, for now, we simply hold this assumption as a given precondition.
 
+\subsection{Dynamic Dependencies}
+
+Now that we have methods for defining both spatial and temporal dependencies in our system, the question arises: what happens if a dependency has a lifecycle? What if a dependency needs to only hold true some of the time?
+
+To solve these dynamic situations we can introduce the idea of a \textit{Virtual Dependency Graph} (VDG) which is a dependency graph that can apply to multiple UIs. The key is that is \textit{must} have a limited lifespan. If it does not have a limited lifespan then it just becomes another spatial or temporal DDAG.
+
+\begin{con-def}[Virtual DDAG]
+	\label{thread}
+	A dependency disjoint directed acyclic graph that can apply to one or more UIs for our CDS, but whose lifespan must be less than the lifespan of the CDS (system). Used to define dynamic dependencies in a concurrent system.
+\end{con-def}
+
+A VDG will always have a root node that connects to each UI that the VDG involves. This root node represents the final atomic procedure that the VDG will finish before completing its lifecycle.
+
+For example, what if a particular write on one UI needed to happen before a different write on another UI, but that this was \textit{not} necessarily true for \textit{all} writes for these two UIs?
+
+The final write would be the VDG's root node, and the dependency write would be a single child node to the root node. This also means that the two nodes could be a single thread that sequentially ordered a write to the first UI then a write to the second.
+
+So, VDGs can be assigned to a single UI or too multiple UIs. 
+
+But, \textit{why} exactly must a VDG always have a limited lifespan (relative to the lifecycle of the system)? 
+
+Well, in our previous mentioned example, if that VDG that applied to two UIs lasted forever then it would be no different than a spatial dependency (since it would signify that all writes for the dependent UI must wait on all writes for the dependency UI). If the VDG had only applied to a single UI then it would become a permanent temporal DDAG for similiar reasons. The only thing that makes a VDG dynamic is the fact that it's lifespan is always less then that of the CDS.
+
+CAN A THREAD BE ASSIGNED TO MULTIPLE V-DDAGs?
+
+WHAT IF WE WANTED UIs TO BE DYNAMIC?? CAN A UI HAVE A LIFECYCLE?
+
 \subsection{Invariance}
 
 The final part of discussing disjoint directed acyclic graphs and their equivalent dependencies lists is determining if an access type is allowed to not allowed to be used on a specific UI (or even at a specific time).
@@ -143,7 +170,15 @@ Boundary Nodes on our UI dependency graph are useful for determining what access
 
 In Example \ref{2-regular-tree}, we see that modifying the structure of our tree is dependent on what we want to preserve. Thus, we do not allow UIs with dependencies to have the ability to use access types that modify our CDS structure. But, we could if we wanted too. Thus, each UI could be assigned a list of \textit{immutables}. More specifically, a list of nodes in the CDS that are \textit{invariant} to certain access types.
 
-Note: immutability is only a kind of invariance. A low-resolution invariance which blanket-denies all modification access types i.e. leaves the value of the data invariant under access procedures that are of a value modification access type.
+Note: immutability is only a kind of invariance. A low-resolution invariance which blanket-denies all modification access types i.e. leaves the value of the data invariant under access procedures that are of a value modifier access type.
+
+
+\subsection{Review}
+
+
+Spatial Dependencies are dependency definitions that last the lifespan of the CDS and apply to all access types (and threads) that are assigned to the UIs involved in the dependency relationship.
+
+Temporal Dependencies are dependency definitions that last the lifespan of the UI
 
 
 
