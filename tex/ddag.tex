@@ -134,7 +134,11 @@ Using threads makes our virtualization complexes more succinct, as any and all s
 	For every disjoint dependency graph (a disjoint directed acyclic graph i.e. DDAG) of access procedures there is an equivalent disjoint dependency graph of threads.
 \end{con-cor}
 
-WHAT IF WE WANT TO ASSIGN THE SAME THREAD TO MULTIPLE UIs? The fact of the matter is that the total number of UIs determines the minimum number of threads required to allow our CDS system to not be missing concurrency improvements.
+WHAT IF WE WANT TO ASSIGN THE SAME THREAD TO MULTIPLE UIs? 
+
+The fact of the matter is that the total number of UIs determines the minimum number of threads required to allow our CDS system to not be missing concurrency improvements. (but is usually used when a maximum number of threads is a requirement)
+
+In this case the threads will need to have internal sequential consistency. In other words, the ordering of dependent operations will only be based on the sequential ordering of access procedures within the thread.
 
 In the next section of this paper we will discuss how we will ensure atomicity for access procedures. But, for now, we simply hold this assumption as a given precondition.
 
@@ -155,25 +159,23 @@ For example, what if a particular write on one UI needed to happen before a diff
 
 The final write would be the VDG's root node, and the dependency write would be a single child node to the root node. This also means that the two nodes could be a single thread that sequentially ordered a write to the first UI then a write to the second.
 
-So, VDGs can be assigned to a single UI or too multiple UIs. 
+So, VDGs can be assigned to a single UI or too multiple UIs.
 
 But, \textit{why} exactly must a VDG always have a limited lifespan (relative to the lifecycle of the system)? 
 
 Well, in our previous mentioned example, if that VDG that applied to two UIs lasted forever then it would be no different than a spatial dependency (since it would signify that all writes for the dependent UI must wait on all writes for the dependency UI). If the VDG had only applied to a single UI then it would become a permanent temporal DDAG for similar reasons. The only thing that makes a VDG dynamic is the fact that it's lifespan is always less then that of the CDS.
 
-CAN THE SAME THREAD BE ASSIGNED TO MULTIPLE V-DDAGs (the same thread being a dynamic dependency)?
+Similar to the discussion in the Atomicity subsection on assigning the same thread to multiple UIs, assigning a thread to multiple V-DDAGs can possibly lead an underutilized concurrency potential. Threads that are assigned to V-DDAGs are essentially virtual themselves, as it is their lifecycle that is the lifecycle of a node in a V-DDAG.
 
-This concerns two different possibilities: assigning the same thread to multiple UIs (IN ATOMICITY SECTION -- can lose concurrency benefits by doing this, but is usually used when a maximum number of threads is a requirement), assigning a thread to multiple V-DDAGs (can potentially lose concurrency by doing this).
+The final dynamic property of a system we want to briefly discuss is the idea of a: dynamic UI.
 
-In this case the threads will need to have internal sequential consistency. In other words, the ordering of dependent operations will only be based on the sequential ordering of access procedures within the thread.
-
-WHAT IF WE WANTED UIs TO BE DYNAMIC?? CAN A UI HAVE A LIFECYCLE?
-
-If a UI has a lifecycle then the dependency graph would need to be constantly redrawn. Unless we create some sort of Virtual UI (that we specify must have a lifespan less than that of the CDS).
+If UIs are allowed a  lifecycle shorter than the system then the UI dependency graph could potentially need to be constantly redrawn. The only way to outright avoid this scenario is to create another entity that would behave like the nodes in a V-DDAG (and that we specify must have a lifespan less than that of the CDS).
 
 If a UI were to be dynamic, but have dependencies, there would have to be a way to say that it could not end its lifecycle until its dependencies ended their lifecycles.
 
 Actually, this leads us to a very important (not yet discussed) issue: UIs must cover all nodes in the CDS i.e. every node in the CDS must be addressed by at least one UI at all times. So, if we have dynamic UIs then we would have to check that before a UI could end its lifecycle that ever CDS node that it addresses must be addressed by some other UI. Seeing as this is just computationally inefficient, we thus note that dynamic UIs are only feasible if we create the secondary notion of: \textit{Virtual UIs}.
+
+This allows us to have: \textit{Virtual UI dependency graphs}. But, then this also implies that every Virtual UI could potentially have a V-DDAG attached to it (that must have a lifecycle less than or equal to the Virtual UI node itself). All Virtual UIs  must have a lifecycle less than or equal to the VUI they are dependencies of. Virtual UIs can apply to any set of nodes, but they must either have at least one real or one virtual dependent.
 
 \subsection{Invariance}
 
