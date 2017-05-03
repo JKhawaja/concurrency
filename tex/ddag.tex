@@ -185,22 +185,22 @@ This allows us to have: \textit{Virtual UI dependency graphs}. But, then this al
 
 Every V-DDAG and VUI node is a thread that must make it's dependents aware of its existence. In fact, all nodes in any dependency graph (virtual or real) are just threads. The only difference is that real thread nodes do not control declaring themselves dependencies of one another, only virtual thread nodes can declare themselves as a (temporary) dependency of other thread nodes.
 
-ARE WE ALLOWING DYNAMIC (VIRTUAL) NODES TO HAVE REAL DEPENDENCIES??
-
 The final thing we would like to mention in this dependencies section is the fact that virtual (dynamic) nodes can still have real nodes (spatial and temporal) as their dependencies.
 
 \subsection{Invariance}
 
 The final part of discussing disjoint directed acyclic graphs and their equivalent dependencies lists is determining if an access type is allowed or not allowed to be used on a specific UI (or even at a specific time).
 
-Boundary Nodes on our UI dependency graph can be useful for determining what access types are allowed for a UI.
+Boundary Nodes on our UI dependency graph can be useful for determining what access types are allowed for a UI. For example, it might be simpler to allow CDS-structure modifying access types for boundary UI nodes only: specifically appending and pruning sub-graphs to the CDS. 
+
+But, we should first formalize what boundary nodes are and then look at an example of how this can be useful.
 
 \begin{con-def}[Leaf Boundaries]
 	\label{leaf-boundaries}
 	Any real DDAG node which has no dependencies is considered a \textit{leaf boundary} node on that DDAG.
 \end{con-def}
 
-Every real (spatial and temporal) node can be represented by 4 numbers: spatial dependents, temporal dependents, spatial dependencies, and temporal dependencies, 
+Every real (spatial and temporal) node can be represented by 4 numbers: spatial dependents, temporal dependents, spatial dependencies, and temporal dependencies.
 
 \begin{minted}{go}
 type RealNode struct{
@@ -230,9 +230,15 @@ There is another kind of boundary node for real DDAGs:
 The classes for root boundaries can be expressed using our primary 4 variables succinctly as well:
 
 \begin{itemize}
-	\item Spatial Root Boundary Nodes: \{x, y, 0, 0\}
-	\item Temporal Root Boundary Nodes: \{0, 0, x, y\}
+	\item Spatial Root Boundary Nodes: \{0, 0, y, z\}
 \end{itemize}
+
+Notice, that we do not have Temporal Root Boundary Nodes defined. This is because of the following corollary.
+
+\begin{con-cor}[No Temporal Root Boundaries]
+	\label{no-temp-root-bounds}
+	There are no Temporal root boundaries as every Temporal node must have at least one Spatial node dependency.
+\end{con-cor}
 
 \begin{con-ex} [2-Regular Tree]
 	\label{2-regular-tree}
@@ -245,11 +251,11 @@ Note: immutability is only a kind of invariance. A low-resolution invariance whi
 
 \subsection{Review}
 
-\textit{Spatial Dependencies} are dependency definitions that last the lifespan of the CDS and apply to all access types (and threads) that are assigned to the UIs involved in the dependency relationship.
+\textit{Spatial Nodes} are threads that last the lifespan of the CDS and are attached to a single UI (in this case a UI is a node).
 
-\textit{Temporal Dependencies} are dependency definitions that last the lifespan of the UI and apply to a specific access procedure that is assigned to a single UI.
+\textit{Temporal Nodes} are threads that last the lifespan of the CDS and are attached to a single UI (in this case temporal nodes represent all (permanent) threads beyond the initial thread attached to a UI).
 
-\textit{Virtual Dependencies} are dependency definitions that have a lifespan shorter than the CDS (or UI that they are assigned to) and can be assigned to multiple UIs.
+\textit{Virtual Nodes} are threads that have a lifespan shorter than the CDS (or Node that they are assigned to) and can be assigned to multiple UIs.
 
 
 

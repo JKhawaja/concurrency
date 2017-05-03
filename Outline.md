@@ -2,10 +2,6 @@
 
 ## Dependency DAGs (DDAGs)
 
-A boundary node is a node without dependencies and can thus always proceed infinitely often post completion points.
-
-Threads with access to boundary nodes can modify the structure of assigned independent at those nodes.
-
 - *Modifying the structure itself:* e.g. adding or deleting unique independents, modifying an independents dependencies list, or just modifying which part of the structure a unique independent is referring too.
     + this is easy when we have e.g. a 2-Regular Tree with only 3 nodes, then we can create three independents: A (the root), B (the left sub-tree), and C (the right sub-tree), now adding or deleting nodes to the tree is handled exclusively by B OR C (this is also simple for n-Regular Trees in general).
     + Invariants: in the above example we assume that the root nodes for the B and C sub-trees will not disappear. So, when defining unique independents as sub-structures it can be helpful to be able to note if any of the structure is "immutable". Or even more precisely, which parts of the structure are invariant under a modification or class of modifications.
@@ -70,8 +66,15 @@ How does this algorithm do in terms of:
 - Technically, our algorithm is not free of "deadlocking"
     + In that, threads can still stall internally and cause dependents to stall forever as well.
     + We could implement a form of preemption where a thread waits a maximum number of time before moving ahead beyond an unfinished thread, and the thread that has not completed is removed and a new thread assigned to its position. (-- MAKE BETTER)
+- WHEN A THREAD IS MARKED IN A COMPLETED STATE -- WHEN CAN IT RESUME INTO THE NEXT INCOMPLETED STATE? ALL OF ITS DEPENDENTS NEED TO BE AWARE THAT IT COMPLETED! AND SHOULDN'T THEY COMPLETE BEFORE THE THREAD RUNS THE NEXT ATOMIC OPERATION?
+    + this might be why we would use wait groups, and reuse a wait group. For example, all of a nodes dependencies in a wait group will let the node know when it can proceed (when everything in the waitgroup is marked done).
+    + However, the question arises: should a dependency add its dependents to a waitgroup that should complete before moving on to its next atomic operation?
+    + The answer is: IF YOU WANT IT TO (??), however, this creates the pattern of dual dependency (CIRCULAR DEPENDENCIES)``
+    + This can be resolved by a: *Recursive Thread* (assigned to a single node)
 
 ## Formal Verification
+
+Formal verification is entirely dependent on the system requirements and design. This is not (per say) an algorithm that can be glued into existing projects, but much more so a library that follows fundamental mathematical principles that can be utilized in designing a CDS system (a system with CDSs within itself).
 
 ## Memory Management
 
