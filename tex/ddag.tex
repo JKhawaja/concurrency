@@ -165,21 +165,45 @@ But, \textit{why} exactly must a VDG always have a limited lifespan (relative to
 
 Well, in our previous mentioned example, if that VDG that applied to two UIs lasted forever then it would be no different than a spatial dependency (since it would signify that all writes for the dependent UI must wait on all writes for the dependency UI). If the VDG had only applied to a single UI then it would become a permanent temporal DDAG for similar reasons. The only thing that makes a VDG dynamic is the fact that it's lifespan is always less then that of the CDS.
 
-Similar to the discussion in the Atomicity subsection on assigning the same thread to multiple UIs, assigning a thread to multiple V-DDAGs can possibly lead an underutilized concurrency potential. Threads that are assigned to V-DDAGs are essentially virtual themselves, as it is their lifecycle that is the lifecycle of a node in a V-DDAG.
+Similar to the discussion in the Atomicity subsection on assigning the same thread to multiple UIs, assigning a thread to multiple V-DDAGs can possibly lead to an underutilized concurrency potential. Threads that are assigned to V-DDAGs are essentially virtual themselves, as it is their lifecycle that is the lifecycle of a node in a V-DDAG.
 
 The final dynamic property of a system we want to briefly discuss is the idea of a: dynamic UI.
 
-If UIs are allowed a  lifecycle shorter than the system then the UI dependency graph could potentially need to be constantly redrawn. The only way to outright avoid this scenario is to create another entity that would behave like the nodes in a V-DDAG (and that we specify must have a lifespan less than that of the CDS).
+If UIs are allowed a lifecycle shorter than the system then the UI dependency graph could potentially need to be constantly redrawn. The only way to outright avoid this scenario is to create another entity that would behave like the nodes in a V-DDAG (and that we specify must have a lifespan less than that of the CDS).
 
 If a UI were to be dynamic, but have dependencies, there would have to be a way to say that it could not end its lifecycle until its dependencies ended their lifecycles.
 
-Actually, this leads us to a very important (not yet discussed) issue: UIs must cover all nodes in the CDS i.e. every node in the CDS must be addressed by at least one UI at all times. So, if we have dynamic UIs then we would have to check that before a UI could end its lifecycle that ever CDS node that it addresses must be addressed by some other UI. Seeing as this is just computationally inefficient, we thus note that dynamic UIs are only feasible if we create the secondary notion of: \textit{Virtual UIs}.
+Actually, this leads us to a very important (not yet discussed) issue: UIs must cover all nodes in the CDS i.e. every node in the CDS must be addressed by at least one UI at all times. 
 
-This allows us to have: \textit{Virtual UI dependency graphs}. But, then this also implies that every Virtual UI could potentially have a V-DDAG attached to it (that must have a lifecycle less than or equal to the Virtual UI node itself). All Virtual UIs  must have a lifecycle less than or equal to the VUI they are dependencies of. Virtual UIs can apply to any set of nodes, but they must either have at least one real or one virtual dependent.
+So, if we have dynamic UIs then we would have to check that before a UI could end its lifecycle that ever CDS node that it addresses must be addressed by some other UI. Seeing as this is just computationally inefficient, we thus note that dynamic UIs are only feasible if we create the secondary notion of: \textit{Virtual UIs}.
+
+This allows us to have: \textit{Virtual UI dependency graphs}. But, then this also implies that every Virtual UI (VUI) could potentially have a V-DDAG attached to it (that must have a lifecycle less than or equal to the VUI node itself). All VUIs must have a lifecycle less than or equal to the VUI they are dependencies of. VUIs can apply to any set of nodes, but they must either have at least one real or one virtual dependent.
+
+Every V-DDAG and VUI node is a thread that must make it's dependents aware of its existence. In fact, all nodes in any dependency graph (virtual or real) are just threads. The only difference is that real thread nodes do not control declaring themselves dependencies of one another, only virtual thread nodes can declare themselves as a (temporary) dependency of other thread nodes.
 
 \subsection{Invariance}
 
 The final part of discussing disjoint directed acyclic graphs and their equivalent dependencies lists is determining if an access type is allowed or not allowed to be used on a specific UI (or even at a specific time).
+
+Every real (spatial and temporal) node can be represented by 4 numbers: spatial dependencies, temporal dependencies, spatial dependents, and temporal dependents.
+
+\begin{minted}{go}
+type RealNode struct{
+	SpatialDependents uint
+	TemporalDependents uint
+	SpatialDependencies uint
+	TemporalDependencies uint
+}
+\end{minted}
+
+Examples of various kinds of nodes would be:
+
+\begin{itemize}
+	\item Spatial Nodes: \{x, y, z, 0\}
+	\item Spatial Boundary Nodes: \{x, y, 0, 0\}
+	\item Temporal Nodes: \{0, x, y, z\}
+	\item Temporal Boundary Nodes: \{0, 0, x, y\}
+\end{itemize}
 
 Boundary Nodes on our UI dependency graph are useful for determining what access types are allowed for a UI.
 
