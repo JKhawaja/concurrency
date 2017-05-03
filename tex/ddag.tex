@@ -149,7 +149,7 @@ Now that we have methods for defining both spatial and temporal dependencies in 
 To solve these dynamic situations we can introduce the idea of a \textit{Virtual Dependency Graph} (VDG) which is a dependency graph that can apply to multiple UIs. The key is that is \textit{must} have a limited lifespan. If it does not have a limited lifespan then it just becomes another spatial or temporal DDAG.
 
 \begin{con-def}[Virtual DDAG]
-	\label{thread}
+	\label{virtual-ddag}
 	A dependency disjoint directed acyclic graph that can apply to one or more UIs for our CDS, but whose lifespan must be less than the lifespan of the CDS (system). Used to define dynamic dependencies in a concurrent system.
 \end{con-def}
 
@@ -185,7 +185,14 @@ Every V-DDAG and VUI node is a thread that must make it's dependents aware of it
 
 The final part of discussing disjoint directed acyclic graphs and their equivalent dependencies lists is determining if an access type is allowed or not allowed to be used on a specific UI (or even at a specific time).
 
-Every real (spatial and temporal) node can be represented by 4 numbers: spatial dependencies, temporal dependencies, spatial dependents, and temporal dependents.
+Boundary Nodes on our UI dependency graph can be useful for determining what access types are allowed for a UI.
+
+\begin{con-def}[Leaf Boundaries]
+	\label{leaf-boundaries}
+	Any real DDAG node which has no dependencies is considered a \textit{leaf boundary} node on that DDAG.
+\end{con-def}
+
+Every real (spatial and temporal) node can be represented by 4 numbers: spatial dependents, temporal dependents, spatial dependencies, and temporal dependencies, 
 
 \begin{minted}{go}
 type RealNode struct{
@@ -196,20 +203,30 @@ type RealNode struct{
 }
 \end{minted}
 
-Examples of various kinds of nodes would be:
+The basic difference between leaf-boundary and non-boundary real nodes can be expressed with these four variables succinctly:
+
+ARE WE ALLOWING DYNAMIC (VIRTUAL) NODES TO HAVE REAL DEPENDENCIES??
 
 \begin{itemize}
-	\item Spatial Nodes: \{x, y, z, 0\}
-	\item Spatial Boundary Nodes: \{x, y, 0, 0\}
+	\item Spatial Nodes: \{w, x, y, 0\}
+	\item Spatial Leaf Boundary Nodes: \{0, x, y, 0\}
 	\item Temporal Nodes: \{0, x, y, z\}
-	\item Temporal Boundary Nodes: \{0, 0, x, y\}
+	\item Temporal Leaf Boundary Nodes: \{0, 0, y, z\}
 \end{itemize}
 
-Boundary Nodes on our UI dependency graph are useful for determining what access types are allowed for a UI.
+There is another kind of boundary node for real DDAGs:
 
-\begin{con-def}[Boundaries]
-	\label{boundaries}
+\begin{con-def}[Root Boundaries]
+	\label{root-boundaries}
+	Any real DDAG node which may or may not have dependencies but does not have any dependents is considered a \textit{root boundary} node on that DDAG.
 \end{con-def}
+
+The classes for root boundaries can be expressed using our primary 4 variables succinctly as well:
+
+\begin{itemize}
+	\item Spatial Root Boundary Nodes: \{x, y, 0, 0\}
+	\item Temporal Root Boundary Nodes: \{0, 0, x, y\}
+\end{itemize}
 
 \begin{con-ex} [2-Regular Tree]
 	\label{2-regular-tree}

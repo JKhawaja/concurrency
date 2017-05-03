@@ -2,13 +2,6 @@
 
 ## Dependency DAGs (DDAGs)
 
-Side-point: every node (both real and virtual independents) can be represented by 4 numbers (Spatial dependencies, temporal dependencies, spatial dependents, temporal dependents).
-
-- Spatial Nodes: {n, m, l, 0}
-- Spatial Boundary Nodes: {n, m, 0, 0}
-- Temporal Nodes: {0, n, m, l}
-- Temporal Boundary Nodes: {0, 0, n, m}
-
 A boundary node is a node without dependencies and can thus always proceed infinitely often post completion points.
 
 Threads with access to boundary nodes can modify the structure of assigned independent at those nodes.
