@@ -104,18 +104,18 @@ type AccessProcedure struct{
 
 \subsection{Atomicity}
 
-We still have to come back around to combining our ordering of dependencies with the processes in our system. But, first we should consider when two access procedures can be simply sequentially ordered. If some set of access procedures which apply to the same UI must be linearly ordered then we can consider the sequence of those procedures as being a new access procedure.
+We still have to come back around to combining our ordering of dependencies with the processes in our system. But, first we should consider when two access procedures can be simply sequentially ordered. If some set of access procedures which apply to the same UI must be linearly ordered then we can consider the sequential composition of those procedures as being a new access procedure.
 
-This can technically also apply to any sequence of access procedures (assigned to the same UI) that are not dependent on one another. If we want to reduce the total number of individual procedures in our system (i.e. reduce the number of nodes in our temporal dependency graph for a UI) then we can combine access procedures that are either linearly dependent or independent into a single access procedure.
+This can technically also apply to any sequence of access procedures (assigned to the same UI) that are not dependent on one another. If we want to reduce the total number of individual procedures in our system (i.e. reduce the number of nodes in our temporal dependency graph for a UI) then we can combine access procedures that are linearly dependent (or entirely independent) into a single access procedure.
 
-The allowance for this combination is what we call: \textit{atomicity}. Every access procedure must be \textit{atomic}.
+The allowance for this combination is what we call: \textit{atomicity}.
 
 \begin{con-def}[Atomic Procedures]
 	\label{atomic-procedures}
-	Any access procedure or sequence of procedures that appear to the rest of the system as a single operation on a UI are called: \textit{atomic procedures}.
+	Any access procedure or sequence of access procedures that appear to the rest of the system as a single operation on a UI are called: \textit{atomic procedures}.
 \end{con-def}
 
-All access procedures \textit{should be} atomic procedures. But, arbitrary sequences of procedures are not necessarily atomic. We want to specifically classify sequences of access procedures that are atomic.
+All access procedures \textit{should already be} atomic procedures. But, arbitrary sequences of procedures are not necessarily demanded to atomic. We want to specifically classify sequences of access procedures that \textit{are} atomic.
 
 \begin{con-def}[Thread]
 	\label{thread}
@@ -242,7 +242,7 @@ Notice, that we do not have Temporal Root Boundary Nodes defined. This is becaus
 
 \begin{con-ex} [2-Regular Tree]
 	\label{2-regular-tree}
-	We consider boundary nodes of a UI dependency graph for a 2-Regular Tree CDS.
+	We consider boundary nodes of a UI dependency graph for a 2-Regular Tree CDS. We will consider a 3 node 2-Regular Tree for which we assign one node to a UI and make the root node's UI dependent on the the two leaf nodes UIs. This makes our UI DDAG have one root-boundary and two leaf-boundary nodes.
 \end{con-ex}
 
 In Example \ref{2-regular-tree}, we see that modifying the structure of our tree is dependent on what we want to preserve. Thus, we do not allow UIs with dependencies to have the ability to use access types that modify our CDS structure. But, we could if we wanted too. Thus, each UI could be assigned a list of \textit{immutables}. More specifically, a list of nodes in the CDS that are \textit{invariant} to certain access types.
