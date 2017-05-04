@@ -1,14 +1,5 @@
 # Avoiding Conflicts in Concurrency Structures -- Outline
 
-## Dependency DAGs (DDAGs)
-
-- *Modifying the structure itself:* e.g. adding or deleting unique independents, modifying an independents dependencies list, or just modifying which part of the structure a unique independent is referring too.
-    + this is easy when we have e.g. a 2-Regular Tree with only 3 nodes, then we can create three independents: A (the root), B (the left sub-tree), and C (the right sub-tree), now adding or deleting nodes to the tree is handled exclusively by B OR C (this is also simple for n-Regular Trees in general).
-    + Invariants: in the above example we assume that the root nodes for the B and C sub-trees will not disappear. So, when defining unique independents as sub-structures it can be helpful to be able to note if any of the structure is "immutable". Or even more precisely, which parts of the structure are invariant under a modification or class of modifications.
-    + the question becomes: how do we generalize this to arbitrary structures?
-        * Boundary Nodes
-        * perhaps it is outside the scope of this paper ...
-
 ### Operation Priorities as a Partial Ordering for V-DDAGs
 
 V-DDAGs can be ordered by *operation priority* i.e. if `read`s have higher priority than `write`s, or vice versa.
@@ -71,10 +62,6 @@ How does this algorithm do in terms of:
     + However, the question arises: should a dependency add its dependents to a waitgroup that should complete before moving on to its next atomic operation?
     + The answer is: IF YOU WANT IT TO (??), however, this creates the pattern of dual dependency (CIRCULAR DEPENDENCIES)``
     + This can be resolved by a: *Recursive Thread* (assigned to a single node)
-
-## Formal Verification
-
-Formal verification is entirely dependent on the system requirements and design. This is not (per say) an algorithm that can be glued into existing projects, but much more so a library that follows fundamental mathematical principles that can be utilized in designing a CDS system (a system with CDSs within itself).
 
 ## Memory Management
 

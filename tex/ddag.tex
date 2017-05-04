@@ -48,7 +48,15 @@ Let's define this:
 
 Unique-Independents (UIs) can almost be seen as a \textit{virtualization} of our CDS's spatial topology.
 
-Unique-Independents can obviously have external dependencies i.e. be dependent on each other. Thus, the set of UIs of our CDS forms a dependency graph. Although, since UIs do not have to have other UIs as dependencies, we simply qualify this as a: dependencies list.
+Unique-Independents can obviously have external dependencies i.e. be dependent on each other. Thus, the set of UIs of our CDS forms a dependency graph. More specifically
+
+\begin{con-def}[Disjoint Directed Acyclic Graph]
+	\label{ddag}
+	The set of UIs and their dependencies on one another forms a disjointed directed-acyclic graph i.e. a disjoint dependencies graph. It is disjointed since UIs are not required to have dependency relations with one another and thus some UIs (nodes) will not have edges in the graph.
+\end{con-def}
+
+
+Although, since UIs do not have to have other UIs as dependencies it will be simpler to consider a: dependencies list.
 
 \begin{con-def}[Dependency List]
 	\label{dependency-list}
@@ -263,7 +271,7 @@ Thus, we can help ensure that the tree remains 2-Regular by not giving the root 
 
 In Example \ref{2-regular-tree}, we see that modifying the structure of our tree is dependent on what we want to preserve (which in this case is a 2-Regular Tree structure). Thus, we did not allow the root boundary UI with it's dependencies to have the ability to use access types that modify our CDS structure (as there was no need for it too).
 
-We divided the tree into 3 UIs which established an easy way to divided access procedures as well. However, we still would not want any of our 3 original CDS nodes to be deleted, \textit{yet} simulataneously we do want to be able to remove CDS nodes that have been appended to the two leaf CDS nodes if we want too. Therefore we still need a way to more precisely determine access type allowances.
+We divided the tree into 3 UIs which established an easy way to divide access procedures as well. However, we still would not want any of our 3 original CDS nodes to be deleted, \textit{yet} simulataneously we do want to be able to remove CDS nodes that have been appended to the two leaf CDS nodes if we want too. Therefore we still need a way to more precisely determine access type allowances.
 
 Afterall, the above example is a very simple example. What would happen if we wanted to apply access rules for an arbitrary CDS graph structure or a more complex UI DDAG? As we have seen: one way to define a rule is by defining what is we want to preserve (at a given time) and what is allowed to change.
 
@@ -282,12 +290,41 @@ In fact, each UI could have been assigned a list of \textit{immutable} CDS sub-g
 Immutability is only a kind of invariance. A low-resolution invariance which blanket-denies all modification access types.
 \end{con-aside}
 
-Every node in our CDS Graph $\mathsf{G}$ has a set of Access Types $\mathcal{A}$ that it is invariant under.
+Every node in our CDS Graph $\mathsf{G}$ has a set of access types $\mathcal{A}$ that it is invariant under. Either the CDS node and its value remain invariant under an access type (e.g. a ``read'' or "copy" access type), or only the node itself remains invariant (e.g. a ``write'' or "increment" access type). Otherwise, the node and the value are mutable (e.g. in a ``delete-subgraph'' access type).
+
+Thus, these are the canonical invariance classes for access types:
+
+\begin{itemize}
+	\item Node and Value are invariant
+	\item Node is invariant
+	\item No Invariance 
+\end{itemize}
+
+We could of course describe invariants at a higher level e.g. in terms of sub-graphs which are or not invariant under an access type. But, for now we just leave this as a pattern that can be used to help determine access types that are allowed (or not allowed) to be used by a particular process accessing the CDS.
+
+
+\subsection{Partial Orderings}
+
+The last thing we want to mention about DDAGs is rules for how the DDAG structure should be organized. One approach is by defining a partial ordering for the nodes that will be in the DDAG. We will not expound completely on this topic in this paper, instead only mention a single possible approach to temporal DDAGs.
+
+We want to discuss \textit{access type priorities} and how they can be used to define an ordering on a temporal DDAG. We know that access types can be simple reads and writes to much more complex calculation-based overwrites. However, 
+
+FINISH THIS SECTION
+
 
 \subsection{Review}
 
-\textit{Spatial Nodes} are threads that last the lifespan of the CDS and are attached to a single UI (in this case a UI is a node).
+\begin{con-def}[Spatial Threads]
+	\label{spatial-threads}
+	\textit{Spatial Threads} are threads that last the lifespan of the CDS and are attached to a single UI.
+\end{con-def}
 
-\textit{Temporal Nodes} are threads that last the lifespan of the CDS and are attached to a single UI (in this case temporal nodes represent all (permanent) threads beyond the initial thread attached to a UI).
+\begin{con-def}[Temporal Threads]
+	\label{temporal-threads}
+	\textit{Temporal Threads} are threads that last the lifespan of the CDS and are attached to a single UI (in this case temporal threads represent all (permanent) threads beyond the initial spatial thread attached to a UI).
+\end{con-def}
 
-\textit{Virtual Nodes} are threads that have a lifespan shorter than the CDS (or Node that they are assigned to) and can be assigned to multiple UIs.
+\begin{con-def}[Virtual Threads]
+	\label{virtual-threads}
+	\textit{Virtual Threads} are threads that have a lifespan shorter than the CDS (or "Thread Node" that they are a dependency of) and can be assigned to multiple UIs.
+\end{con-def}
