@@ -48,19 +48,18 @@ Let's define this:
 
 Unique-Independents (UIs) can almost be seen as a \textit{virtualization} of our CDS's spatial topology.
 
-Unique-Independents can obviously have external dependencies i.e. be dependent on each other. Thus, the set of UIs of our CDS forms a dependency graph. More specifically
+Unique-Independents can obviously have external dependencies i.e. be dependent on each other. Thus, the set of UIs of our CDS forms a dependency graph. More specifically, they form a disjoint directed acyclic graph.
 
 \begin{con-def}[Disjoint Directed Acyclic Graph]
 	\label{ddag}
-	The set of UIs and their dependencies on one another forms a disjointed directed-acyclic graph i.e. a disjoint dependencies graph. It is disjointed since UIs are not required to have dependency relations with one another and thus some UIs (nodes) will not have edges in the graph.
+	The set of UIs and their dependencies on one another forms a \textit{disjoint directed-acyclic graph} (ddag) i.e. a disjoint dependencies graph. It is disjointed since UIs are not required to have dependency relations with one another and thus some UIs (nodes) will not have edges in the graph.
 \end{con-def}
 
-
-Although, since UIs do not have to have other UIs as dependencies it will be simpler to consider a: dependencies list.
+Although, since UIs do not have to have other UIs as dependencies it will be simpler to consider: a dependencies list.
 
 \begin{con-def}[Dependency List]
 	\label{dependency-list}
-	A \textit{dependencies list} for a CDS is the adjacency list of our disjointed graph of unique-independents.
+	A \textit{dependencies list} for a CDS is the adjacency list of our ddag of unique-independents.
 \end{con-def}
 
 \if
@@ -69,9 +68,9 @@ For any algebraist reading this: our dependencies list can almost be considered 
 
 Don't let the name ``unique-independent'' fool you. There is no requirement for an independent to be spatially-unique. In other words, a UI can share nodes from the CDS with other UIs. The only thing that makes a unique-independent ``unique'' is that it is in totality unique as to the nodes it applies too. 
 
-So while, a UI can be completely subsumed by another UIs spatially, it will never refer to the exact same set of nodes that another UI is referring too. And it is this notion of ``uniqueness'' that allows it to be an independent.
+So while, a UI can be completely subsumed by another UI spatially, it will never refer to the exact same set of nodes that another UI is referring too. And it is this notion of ``uniqueness'' that allows it to be an independent.
 
-This may seem like a unique-independent that subsumes UIs with dependencies that are other subsumed UIs conflicts with our definition (\ref{independents}) of an unique-independent. 
+This may seem like a unique-independent that subsumes UIs that have dependencies which are also subsumed UIs, conflicts with our definition (\ref{independents}) of an unique-independent.
 
 However, what we have to notice is that a unique-independent is evaluated separately from other UIs i.e. a UI that subsumes other UIs and their dependencies is only allowed to be addressed after all those other UIs have been addressed.
 
@@ -96,17 +95,24 @@ Since our dependency list of UIs based off this virtualization represents all po
 
 In other words, we can still order all access procedures that have been assigned to the same UI. For example, will read access procedures always take precedence over write access procedures for a particular UI? What if we wanted to be more specific (fine-grained) than that and give \textit{certain} access procedures precedence over \textit{certain} write access procedures?
 
-It would be impossible to suggest that access procedures that apply to a specific UI could always be totally-ordered. Thus, we arrive at the same situation we were in before with trying to linearize our system. Thankfully, we have the answer: a dependency graph (list). Except, this time our dependencies list are access procedures assigned to the same UI. 
+It would be impossible to suggest that access procedures that apply to a specific UI could always be totally-ordered. Thus, we arrive at the same situation we were in before with trying to linearize our system. Thankfully, we have the answer: a dependency graph (list). Except, this time our dependencies list are access procedures assigned to the same UI.
 
-Whereas we had an UIs dependency list that represented a virtualization of the spatial dependencies, we now have a procedures dependency list that virtualizes the temporal dependencies of our CDS (per UI). Every UI will have it's own temporal dependencies list and every node in this disjoint dependencies graph will be a specific access procedure.
+Whereas we had an UIs dependency list that represented a virtualization of the spatial dependencies, we now have a procedures dependency list that virtualizes the temporal dependencies of our CDS (per UI). 
 
-In this way we can redefine our access procedure code from above to include a temporal ddag node assignment:
+Every UI will have it's own temporal dependencies list and every node in this disjoint dependencies graph will be a specific access procedure.
+
+\begin{con-def}[Temporal DAG]
+	\label{temporal-dag}
+	A temporal directed acyclic graph for a specific UI is the partial ordering of all access procedures acting on the CDS sub-graph at that UI. Unlike the UI dependency graph, this graph is not (and cannot be) disjointed.
+\end{con-def}
+
+We can also write out any temporal DAG as a temporal dependencies list for a particular UI. In this way we can redefine our access procedure code from above to include a temporal DAG node assignment:
 
 \begin{minted}{go}
 type AccessProcedure struct{
 	A AccessType
 	UID int // unique-independent id
-	TID int // temporal ddag node id
+	TID int // temporal dag node id
 }
 \end{minted}
 
@@ -123,7 +129,7 @@ The allowance for this combination is what we call: \textit{atomicity}.
 	Any access procedure or sequence of access procedures that appear to the rest of the system as a single operation on a UI are called: \textit{atomic procedures}.
 \end{con-def}
 
-All access procedures \textit{should already be} atomic procedures. But, arbitrary sequences of procedures are not necessarily demanded to atomic. We want to specifically classify sequences of access procedures that \textit{are} atomic.
+All access procedures \textit{should already be} atomic procedures. But, arbitrary sequences of procedures are not necessarily demanded to be atomic. We want to specifically classify sequences of access procedures that \textit{are} atomic.
 
 \begin{con-def}[Thread]
 	\label{thread}
@@ -136,7 +142,7 @@ Using threads makes our virtualization complexes more succinct, as any and all s
 
 \begin{props}[Nodes are Threads]
 	\label{nodes-are-threads}
-	Every node in our disjoint temporal dependency graphs is a thread (iff we maintain that all access procedures must be atomic procedures).
+	Every node in our temporal dependency graphs is a thread (iff we maintain that all access procedures must be atomic procedures).
 \end{props}
 
 \begin{con-cor}[Thread DDAG]
@@ -158,7 +164,7 @@ In the next section of this paper we will discuss how we will ensure atomicity f
 
 Now that we have methods for defining both spatial and temporal dependencies in our system, the question arises: what happens if a dependency has a lifecycle? What if a dependency needs to only hold true some of the time?
 
-To solve these dynamic situations we can introduce the idea of a \textit{Virtual Dependency Graph} (VDG) which is a dependency graph that can apply to multiple UIs. The key is that is \textit{must} have a limited lifespan. If it does not have a limited lifespan then it just becomes another spatial or temporal DDAG.
+To solve these dynamic situations we can introduce the idea of a \textit{Virtual Dependency Graph} (VDG) which is a dependency graph that can apply to multiple UIs. The key is that is \textit{must} have a limited lifespan. If it does not have a limited lifespan then it just becomes another spatial DDAG or temporal DAG.
 
 \begin{con-def}[Virtual DDAG]
 	\label{virtual-ddag}
@@ -309,7 +315,7 @@ The last thing we want to mention about DDAGs is rules for how the DDAG structur
 
 We want to discuss \textit{access type priorities} and how they can be used to define an ordering on a temporal DDAG. We know that access types can be simple reads and writes to much more complex calculation-based overwrites. However, 
 
-FINISH THIS SECTION
+FINISH THIS SECTION ...
 
 
 \subsection{Review}
