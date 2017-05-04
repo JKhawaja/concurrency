@@ -242,7 +242,7 @@ Notice, that we do not have Temporal Root Boundary Nodes defined. This is becaus
 
 \begin{con-ex} [2-Regular Tree]
 	\label{2-regular-tree}
-	We consider boundary nodes of a UI dependency graph for a 2-Regular Tree CDS. We will consider a 3 node 2-Regular Tree for which we assign one node to a UI and make the root node's UI dependent on the the two leaf nodes UIs. This makes our UI DDAG have one root-boundary and two leaf-boundary nodes. In this case, we will allow structure appending access types on any three of our nodes.
+	We will consider a 3 node 2-Regular Tree for which we assign one node to a UI and make the root node's UI dependent on the the two leaf nodes UIs. This makes our UI DDAG have one root-boundary and two leaf-boundary nodes.
 
 \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3cm,
                    main node/.style={circle,draw,font=\small}]
@@ -255,11 +255,34 @@ Notice, that we do not have Temporal Root Boundary Nodes defined. This is becaus
     (1) edge node [left] {} (2)
         edge node [right] {} (3);
 \end{tikzpicture}
+
+In this case, we will allow structure appending access types on the two leaf nodes. Specifically, we would like to ensure that these two UI nodes can only create new nodes on our 2-regular tree for each of the two branches of the tree (so that each UI has control over its own half of the 2-Regular Tree).
+
+Thus, we can help ensure that the tree remains 2-Regular by not giving the root boundary UI node any append sub-graph access type rights.
 \end{con-ex}
 
-In Example \ref{2-regular-tree}, we see that modifying the structure of our tree is dependent on what we want to preserve. Thus, we do not allow UIs with dependencies to have the ability to use access types that modify our CDS structure. But, we could if we wanted too. Thus, each UI could be assigned a list of \textit{immutables}. More specifically, a list of nodes in the CDS that are \textit{invariant} to certain access types.
+In Example \ref{2-regular-tree}, we see that modifying the structure of our tree is dependent on what we want to preserve (which in this case is a 2-Regular Tree structure). Thus, we did not allow the root boundary UI with it's dependencies to have the ability to use access types that modify our CDS structure (as there was no need for it too).
 
-Note: immutability is only a kind of invariance. A low-resolution invariance which blanket-denies all modification access types i.e. leaves the value of the data invariant under access procedures that are of a value modifier access type.
+We divided the tree into 3 UIs which established an easy way to divided access procedures as well. However, we still would not want any of our 3 original CDS nodes to be deleted, \textit{yet} simulataneously we do want to be able to remove CDS nodes that have been appended to the two leaf CDS nodes if we want too. Therefore we still need a way to more precisely determine access type allowances.
+
+Afterall, the above example is a very simple example. What would happen if we wanted to apply access rules for an arbitrary CDS graph structure or a more complex UI DDAG? As we have seen: one way to define a rule is by defining what is we want to preserve (at a given time) and what is allowed to change.
+
+For example, we did want the original three CDS nodes in Example \ref{2-regular-tree} to be deleted. But, we could have if we wanted too.
+
+In fact, each UI could have been assigned a list of \textit{immutable} CDS sub-graphs that cannot be removed or even have their values modified. More specifically, we could have had a list of sub-graphs in the CDS that are \textit{invariant} to certain access types.
+
+\begin{con-def}[Invariants]
+	\label{invariants}
+	Any data $\mathsf{d}$ stored in our CDS, or any subgraph $\mathsf{S} \subset \mathsf{G}$ that does not change when acted upon by a specific Access Type $\mathcal{A}_{t}$ is called an invariant of that access type.
+	\[ \mathcal{A}_{t}\mathsf{(d)} \rightarrow \mathsf{d} \]
+	\[ \mathcal{A}_{t}\mathsf{(S)} \rightarrow \mathsf{S} \]
+\end{con-def}
+
+\begin{con-aside}
+Immutability is only a kind of invariance. A low-resolution invariance which blanket-denies all modification access types.
+\end{con-aside}
+
+Every node in our CDS Graph $\mathsf{G}$ has a set of Access Types $\mathcal{A}$ that it is invariant under.
 
 \subsection{Review}
 
@@ -268,7 +291,3 @@ Note: immutability is only a kind of invariance. A low-resolution invariance whi
 \textit{Temporal Nodes} are threads that last the lifespan of the CDS and are attached to a single UI (in this case temporal nodes represent all (permanent) threads beyond the initial thread attached to a UI).
 
 \textit{Virtual Nodes} are threads that have a lifespan shorter than the CDS (or Node that they are assigned to) and can be assigned to multiple UIs.
-
-
-
-
