@@ -179,27 +179,48 @@ The final write would be the VDG's root node, and the dependency write would be 
 
 So, VDGs can be assigned to a single UI or too multiple UIs.
 
-But, \textit{why} exactly must a VDG always have a limited lifespan (relative to the lifecycle of the system)? 
+But, \textit{why} exactly must a VDG always have a limited lifespan (relative to the lifecycle of the system)?
 
-Well, in our previous mentioned example, if that VDG that applied to two UIs lasted forever then it would be no different than a spatial dependency (since it would signify that all writes for the dependent UI must wait on all writes for the dependency UI). If the VDG had only applied to a single UI then it would become a permanent temporal DDAG for similar reasons. The only thing that makes a VDG dynamic is the fact that it's lifespan is always less then that of the CDS.
+Well, in our previous mentioned example, if that VDG that applied to two UIs lasted the lifespan of the CDS then it would simply be acting as a spatial dependency "representation" (since it would signify that all writes for the dependent UI -- that is attached to -- must wait on all writes for the dependency UI that it is also attached to). 
 
-Similar to the discussion in the Atomicity subsection on assigning the same thread to multiple UIs, assigning a thread to multiple V-DDAGs can possibly lead to an underutilized concurrency potential. Threads that are assigned to V-DDAGs are essentially virtual themselves, as it is their lifecycle that is the lifecycle of a node in a V-DDAG.
+And ff the VDG had only applied to one of the UIs then it would have represented a permanent temporal DAG for similar reasons. The only thing that makes a VDG dynamic is the fact that it's lifespan is always less then that of the CDS.
 
-The final dynamic property of a system we want to briefly discuss is the idea of a: dynamic UI.
+Similar to the discussion in the Atomicity subsection on assigning the same thread to multiple UIs, assigning a thread to multiple VDGs can possibly lead to an underutilized concurrency potential. Threads that are assigned to VDGs are essentially virtual themselves, as it is their lifecycle that is the lifecycle of a node in a VDG.
 
-If UIs are allowed a lifecycle shorter than the system then the UI dependency graph could potentially need to be constantly redrawn. The only way to outright avoid this scenario is to create another entity that would behave like the nodes in a V-DDAG (and that we specify must have a lifespan less than that of the CDS).
+The final dynamic property of a system we want to briefly discuss is the idea of: dynamic UIs.
 
-If a UI were to be dynamic, but have dependencies, there would have to be a way to say that it could not end its lifecycle until its dependencies ended their lifecycles.
+If UIs are allowed a lifecycle shorter than the system then the UI dependency graph could potentially need to be constantly redrawn. The only way to outright avoid this scenario is to create another entity that would behave like the nodes in a VDG (and that we specify must have a lifespan less than that of the CDS).
 
-Actually, this leads us to a very important (not yet discussed) issue: UIs must cover all nodes in the CDS i.e. every node in the CDS must be addressed by at least one UI at all times. 
+If a UI were to be dynamic, but have dependencies, there would have to be a way to say that it could not end its lifecycle until its dependencies ended their lifecycles (as well as ensuring that it's lifecycle was shorter than it's dependents).
 
-So, if we have dynamic UIs then we would have to check that before a UI could end its lifecycle that ever CDS node that it addresses must be addressed by some other UI. Seeing as this is just computationally inefficient, we thus note that dynamic UIs are only feasible if we create the secondary notion of: \textit{Virtual UIs}.
+Actually, this leads us to a very important (not yet discussed) lemma: 
 
-This allows us to have: \textit{Virtual UI dependency graphs}. But, then this also implies that every Virtual UI (VUI) could potentially have a V-DDAG attached to it (that must have a lifecycle less than or equal to the VUI node itself). All VUIs must have a lifecycle less than or equal to the VUI they are dependencies of. VUIs can apply to any set of nodes, but they must either have at least one real or one virtual dependent.
+\begin{con-lem}[]
+	UIs must cover all nodes in the CDS i.e. every node in the CDS must be addressed by at least one UI at all times. 
+\end{con-lem}
 
-Every V-DDAG and VUI node is a thread that must make it's dependents aware of its existence. In fact, all nodes in any dependency graph (virtual or real) are just threads. The only difference is that real thread nodes do not control declaring themselves dependencies of one another, only virtual thread nodes can declare themselves as a (temporary) dependency of other thread nodes.
+So, if we allow UIs to be dynamic then we would have to check that before a UI could end its lifecycle that every CDS node that it addresses must be addressed by some other UI. 
 
-The final thing we would like to mention in this dependencies section is the fact that virtual (dynamic) nodes can still have real nodes (spatial and temporal) as their dependencies.
+Seeing as this would be unnecessarily computationally inefficient, we thus note that dynamic UIs are only feasible if we create the secondary notion of: \textit{Virtual UIs}.
+
+\begin{con-def}[Virtual UI]
+	\label{virtual-ui}
+	A \textit{Virtual UI} is a dynamic UI which has a lifespan shorter than the CDS (UI) or another virtual UI that it has a dependency relationship to.
+\end{con-def}
+
+Because a Virtual UI is not dependent on the same premises that real UIs are dependent on, we provide the following lemma to show an important difference between virtual and real UIs.
+
+\begin{con-lem}[]
+	Virtual UIs do \textit{not} need to be unique  (either relative to real UIs or other virtual UIs) in the sense that real UIs are "unique" relative to other real UIs.
+\end{con-lem}
+
+This lack of a necessity for any uniqueness of VUIs is what gives them a significant degree of flexibility in use (even if there use can only be relatively temporary). Also, unlike VDGs which mimic Temporal DAGs, VUIs (and their dependency relationships) are more of a dynamic version of spatial UI DDAGs.
+
+This allows us to have: \textit{Virtual UI Dependency Graphs}. But, then this also implies that every Virtual UI (VUI) could potentially have a VDG attached to it (that must have a lifecycle less than or equal to the VUI node itself). All VUIs must have a lifecycle less than or equal to the VUI they are dependencies of. VUIs can apply to any set of nodes, but they must either have at least one real or one virtual dependent.
+
+Every VDG and VUI node is a thread that must make it's dependents aware of its existence. In fact, all nodes in any dependency graph (virtual or real) are just threads. The only difference is that real thread nodes do not control declaring themselves dependencies of one another (this should be controlled by a "main" process), only virtual thread nodes can declare themselves as a (temporary) dependency of other thread nodes.
+
+The final thing we would like to mention in this dependencies section is the fact that virtual (dynamic) nodes (both VDG and VUI nodes) can still have real nodes (spatial and temporal) as their dependencies. This implies that VDG nodes and VUI nodes with real dependencies need to be checked for cyclic dependencies, as it essentially becomes a (temporary) extension of the permanent spatial and temporal dependency graphs for the CDS. In other words, all extensions of any of our graphs must always preserve them as being DAGs (even if disjoint).
 
 \subsection{Invariance}
 
@@ -227,25 +248,34 @@ type RealNode struct{
 
 The basic difference between leaf-boundary and non-boundary real nodes can be expressed with these four variables succinctly:
 
-\begin{itemize}
-	\item Spatial Nodes: \{w, x, y, 0\}
-	\item Spatial Leaf Boundary Nodes: \{0, x, y, 0\}
-	\item Temporal Nodes: \{0, x, y, z\}
-	\item Temporal Leaf Boundary Nodes: \{0, 0, y, z\}
-\end{itemize}
+\noindent\fbox{%
+    \parbox{0.9\columnwidth}{%
+	    \begin{itemize}
+			\item Spatial Nodes: \{w, x, y, 0\}
+			\item Spatial Leaf Boundary Nodes: \{0, x, y, 0\}
+			\item Temporal Nodes: \{0, x, y, z\}
+			\item Temporal Leaf Boundary Nodes: \{0, 0, y, z\}
+		\end{itemize}
+    }%
+}
 
 There is another kind of boundary node for real DDAGs:
 
 \begin{con-def}[Root Boundaries]
 	\label{root-boundaries}
-	Any real DDAG node which may or may not have dependencies but does not have any dependents is considered a \textit{root boundary} node on that DDAG.
+	Any real dependency graph node which may or may not have dependencies but does not have any dependents is considered a \textit{root boundary} node on that dependency graph.
 \end{con-def}
 
 The classes for root boundaries can be expressed using our primary 4 variables succinctly as well:
 
-\begin{itemize}
-	\item Spatial Root Boundary Nodes: \{0, 0, y, z\}
-\end{itemize}
+\noindent\fbox{%
+    \parbox{0.9\columnwidth}{%
+	    \begin{itemize}
+			\item Spatial Root Boundary Nodes: \{0, 0, y, z\}
+		\end{itemize}
+    }%
+}
+
 
 Notice, that we do not have Temporal Root Boundary Nodes defined. This is because of the following corollary.
 
@@ -300,11 +330,15 @@ Every node in our CDS Graph $\mathsf{G}$ has a set of access types $\mathcal{A}$
 
 Thus, these are the canonical invariance classes for access types:
 
-\begin{itemize}
-	\item Node and Value are invariant
-	\item Node is invariant
-	\item No Invariance 
-\end{itemize}
+\noindent\fbox{%
+    \parbox{0.7\columnwidth}{%
+		\begin{itemize}
+			\item Node and value are invariant.
+			\item Only node is invariant.
+			\item No Invariance.
+		\end{itemize}
+    }%
+}
 
 We could of course describe invariants at a higher level e.g. in terms of sub-graphs which are or not invariant under an access type. But, for now we just leave this as a pattern that can be used to help determine access types that are allowed (or not allowed) to be used by a particular process accessing the CDS.
 
