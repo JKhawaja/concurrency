@@ -152,7 +152,7 @@ Using threads makes our virtualization complexes more succinct, as any and all s
 
 The fact of the matter is that the total number of UIs determines the minimum number of threads required to allow our CDS system to not be missing concurrency improvements (but is usually used when a maximum number of threads is a requirement).
 
-If we choose to use a lesser amount of threads than we have UIs, then each thread will likely be assigned to multiple UIs? Can our system still offer a degree of undesired behavior avoidance in this case? The answer is yes, but that the management of behavior becomes internal to each thread.
+If we choose to use fewer threads than we have UIs, then each thread will likely be assigned to multiple UIs. Can our system still offer a degree of undesired behavior avoidance in this case? The answer is yes, but the management of behavior must be handled internal to each thread.
 
 In this case the threads will need to have internal sequential consistency. In other words, the ordering of dependent operations will only be based on the sequential ordering of access procedures within the thread. So, the thread should be well-ordered according to access procedures that apply to first: UI dependencies then UI dependents.
 
