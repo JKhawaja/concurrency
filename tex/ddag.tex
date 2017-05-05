@@ -1,4 +1,4 @@
-\section{Dependency DDAGs}
+\section{Dependencies}
 
 We begin our discussion around the crux of avoiding undesirable behavior: \textit{Ordering} (in the literature: \textit{linearization}).
 
@@ -164,14 +164,14 @@ In the next section of this paper we will discuss how we will ensure atomicity f
 
 Now that we have methods for defining both spatial and temporal dependencies in our system, the question arises: what happens if a dependency has a lifecycle? What if a dependency needs to only hold true some of the time?
 
-To solve these dynamic situations we can introduce the idea of a \textit{Virtual Dependency Graph} (VDG) which is a dependency graph that can apply to multiple UIs. The key is that is \textit{must} have a limited lifespan. If it does not have a limited lifespan then it just becomes another spatial DDAG or temporal DAG.
+To solve these dynamic situations we can introduce the idea of a \textit{Virtual Dependency Graph} (VDG) which is a dependency graph that can apply to multiple UIs. The key is that it \textit{must} have a limited lifespan. If it does not have a limited lifespan then it just becomes part of a spatial DDAG or a temporal DAG.
 
-\begin{con-def}[Virtual DDAG]
-	\label{virtual-ddag}
-	A dependency disjoint directed acyclic graph that can apply to one or more UIs for our CDS, but whose lifespan must be less than the lifespan of the CDS (system). Used to define dynamic dependencies in a concurrent system.
+\begin{con-def}[Virtual Dependency Graph]
+	\label{vdg}
+	A dependency directed acyclic graph that can apply to one or more UIs for our CDS, but whose lifespan must be less than the lifespan of the CDS (system). Used to define dynamic dependencies in a concurrent system.
 \end{con-def}
 
-A VDG will always have a root node that connects to each UI that the VDG involves. This root node represents the final atomic procedure that the VDG will finish before completing its lifecycle.
+A VDG will always have a root node that connects to each UI that the VDG involves. Thus, a VDG can never be a disjoint graph in of itself. The root node represents the final atomic procedure that the VDG will finish before completing its lifecycle.
 
 For example, what if a particular write on one UI needed to happen before a different write on another UI, but that this was \textit{not} necessarily true for \textit{all} writes for these two UIs?
 
