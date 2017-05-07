@@ -1,11 +1,5 @@
 # Avoiding Conflicts in Concurrency Structures -- Outline
 
-### Operation Priorities as a Partial Ordering for V-DDAGs
-
-V-DDAGs can be ordered by *operation priority* i.e. if `read`s have higher priority than `write`s, or vice versa.
-
-This can be used to provide a specific degree of consistency for reads on the structure (as to a specific degree for the guarantee of a read having the latest data).
-
 ## Algorithm
 
 goRoutine (Access procedure) Constructor Function: configures goroutines (access procedures) with appropriate information at launch.

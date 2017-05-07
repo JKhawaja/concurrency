@@ -1,4 +1,4 @@
-\section{Dependencies}
+\section{Concepts}
 
 We begin our discussion around the crux of avoiding undesirable behavior: \textit{Ordering} (in the literature: \textit{linearization}).
 
@@ -145,9 +145,9 @@ Using threads makes our virtualization complexes more succinct, as any and all s
 	Every node in our temporal dependency graphs is a thread (iff we maintain that all access procedures must be atomic procedures).
 \end{props}
 
-\begin{con-cor}[Thread DDAG]
+\begin{con-cor}[Thread DAGs]
 	\label{thread-ddag}
-	For every disjoint dependency graph (a disjoint directed acyclic graph i.e. DDAG) of access procedures there is an equivalent disjoint dependency graph of threads.
+	For every dependency graph of access procedures there is an equivalent dependency graph of threads.
 \end{con-cor}
 
 The fact of the matter is that the total number of UIs determines the minimum number of threads required to allow our CDS system to not be missing concurrency improvements (but is usually used when a maximum number of threads is a requirement).
@@ -181,13 +181,13 @@ So, VDGs can be assigned to a single UI or too multiple UIs.
 
 But, \textit{why} exactly must a VDG always have a limited lifespan (relative to the lifecycle of the system)?
 
-Well, in our previous mentioned example, if that VDG that applied to two UIs lasted the lifespan of the CDS then it would simply be acting as a spatial dependency "representation" (since it would signify that all writes for the dependent UI -- that is attached to -- must wait on all writes for the dependency UI that it is also attached to). 
+Well, in our previous mentioned example, if that VDG that applied to two UIs lasted the lifespan of the CDS then it would simply be acting as a spatial dependency "representation" (since it would signify that all writes for the dependent UI -- that it is attached to -- must wait on all writes for the dependency UI that it is also attached to). 
 
-And ff the VDG had only applied to one of the UIs then it would have represented a permanent temporal DAG for similar reasons. The only thing that makes a VDG dynamic is the fact that it's lifespan is always less then that of the CDS.
+And if the VDG had only applied to one of the UIs then it would have represented a permanent temporal DAG for similar reasons. The only thing that makes a VDG dynamic is the fact that it's lifespan is always less then that of the CDS.
 
 Similar to the discussion in the Atomicity subsection on assigning the same thread to multiple UIs, assigning a thread to multiple VDGs can possibly lead to an underutilized concurrency potential. Threads that are assigned to VDGs are essentially virtual themselves, as it is their lifecycle that is the lifecycle of a node in a VDG.
 
-The final dynamic property of a system we want to briefly discuss is the idea of: dynamic UIs.
+Another dynamic property of a CDS system we want to briefly discuss is the idea of: \textit{dynamic UIs}.
 
 If UIs are allowed a lifecycle shorter than the system then the UI dependency graph could potentially need to be constantly redrawn. The only way to outright avoid this scenario is to create another entity that would behave like the nodes in a VDG (and that we specify must have a lifespan less than that of the CDS).
 
@@ -208,7 +208,7 @@ Seeing as this would be unnecessarily computationally inefficient, we thus note 
 	A \textit{Virtual UI} is a dynamic UI which has a lifespan shorter than the CDS (UI) or another virtual UI that it has a dependency relationship to.
 \end{con-def}
 
-Because a Virtual UI is not dependent on the same premises that real UIs are dependent on, we provide the following lemma to show an important difference between virtual and real UIs.
+Because a Virtual UI (VUI) is not dependent on the same premises that real UIs are dependent on, we provide the following lemma to show an important difference between virtual and real UIs.
 
 \begin{con-lem}[]
 	Virtual UIs do \textit{not} need to be unique  (either relative to real UIs or other virtual UIs) in the sense that real UIs are "unique" relative to other real UIs.
@@ -216,7 +216,7 @@ Because a Virtual UI is not dependent on the same premises that real UIs are dep
 
 This lack of a necessity for any uniqueness of VUIs is what gives them a significant degree of flexibility in use (even if there use can only be relatively temporary). Also, unlike VDGs which mimic Temporal DAGs, VUIs (and their dependency relationships) are more of a dynamic version of spatial UI DDAGs.
 
-This allows us to have: \textit{Virtual UI Dependency Graphs}. But, then this also implies that every Virtual UI (VUI) could potentially have a VDG attached to it (that must have a lifecycle less than or equal to the VUI node itself). All VUIs must have a lifecycle less than or equal to the VUI they are dependencies of. VUIs can apply to any set of nodes, but they must either have at least one real or one virtual dependent.
+This allows us to have: \textit{Virtual UI Dependency Graphs}. But, then this also implies that every VUI could potentially have a VDG attached to it (that must have a lifecycle less than or equal to the VUI node itself). All VUIs must have a lifecycle less than or equal to the VUI they are dependencies of. VUIs can apply to any set of nodes, but they must either have at least one real or one virtual dependent.
 
 Every VDG and VUI node is a thread that must make it's dependents aware of its existence. In fact, all nodes in any dependency graph (virtual or real) are just threads. The only difference is that real thread nodes do not control declaring themselves dependencies of one another (this should be controlled by a "main" process), only virtual thread nodes can declare themselves as a (temporary) dependency of other thread nodes.
 
@@ -307,11 +307,11 @@ Thus, we can help ensure that the tree remains 2-Regular by not giving the root 
 
 In Example \ref{2-regular-tree}, we see that modifying the structure of our tree is dependent on what we want to preserve (which in this case is a 2-Regular Tree structure). Thus, we did not allow the root boundary UI with it's dependencies to have the ability to use access types that modify our CDS structure (as there was no need for it too).
 
-We divided the tree into 3 UIs which established an easy way to divide access procedures as well. However, we still would not want any of our 3 original CDS nodes to be deleted, \textit{yet} simulataneously we do want to be able to remove CDS nodes that have been appended to the two leaf CDS nodes if we want too. Therefore we still need a way to more precisely determine access type allowances.
+We divided the tree into 3 UIs which established an easy way to divide access procedures as well. However, we still would not want any of our 3 original CDS nodes to be deleted, \textit{yet} simultaneously we do want to be able to remove CDS nodes that have been appended to the two leaf CDS nodes if we want too. Therefore we still need a way to more precisely determine access type allowances.
 
 Afterall, the above example is a very simple example. What would happen if we wanted to apply access rules for an arbitrary CDS graph structure or a more complex UI DDAG? As we have seen: one way to define a rule is by defining what is we want to preserve (at a given time) and what is allowed to change.
 
-For example, we did want the original three CDS nodes in Example \ref{2-regular-tree} to be deleted. But, we could have if we wanted too.
+For example, we did not want the original three CDS nodes in Example \ref{2-regular-tree} to be deleted. But, we could have if we wanted too.
 
 In fact, each UI could have been assigned a list of \textit{immutable} CDS sub-graphs that cannot be removed or even have their values modified. More specifically, we could have had a list of sub-graphs in the CDS that are \textit{invariant} to certain access types.
 
@@ -342,15 +342,17 @@ Thus, these are the canonical invariance classes for access types:
 
 We could of course describe invariants at a higher level e.g. in terms of sub-graphs which are or not invariant under an access type. But, for now we just leave this as a pattern that can be used to help determine access types that are allowed (or not allowed) to be used by a particular process accessing the CDS.
 
-
 \subsection{Partial Orderings}
 
-The last thing we want to mention about DDAGs is rules for how the DDAG structure should be organized. One approach is by defining a partial ordering for the nodes that will be in the DDAG. We will not expound completely on this topic in this paper, instead only mention a single possible approach to temporal DDAGs.
+The last thing we want to mention about dependency graphs is rules for how the graph structure should be organized. One approach is by defining a partial ordering for the nodes that will be in the graph. We will not expound completely on this topic in this paper, instead only mention a single possible approach to temporal DAG orderings.
 
-We want to discuss \textit{access type priorities} and how they can be used to define an ordering on a temporal DDAG. We know that access types can be simple reads and writes to much more complex calculation-based overwrites. However, 
+We want to discuss \textit{access type priorities} and how they can be used to define an ordering on a temporal DAG. We know that access types can be simple reads and writes to much more complex calculation-based overwrites. However, our example will focus on simple read and write priority operations in regards to implementing a degree of ``consistency''.
 
-FINISH THIS SECTION ...
+By consistency we are referring to determining how often a read can be guaranteed to be reading after the latest write. One obvious simple way is to specify that if any write access procedures are in progress that a read must wait for them to signal completion before reading a value. This of course translates to a simple dependency graph where reads become dependent on write access procedures to complete before commencing themselves.
 
+The way in which we can implement this is via: access type priorities. If the write access type has a higher priority than a read, then every write is added as a dependency to any existing read operation for a particular UI. Priorities can also vary from UI to UI.
+
+The key point is that priorities of access types automatically grants us an ordering for access procedures for a UI (or for an entire CDS if applied to all UIs). And we get an automated ordering if all access types receive an ordering.
 
 \subsection{Review}
 
