@@ -1,6 +1,39 @@
 # Avoiding Conflicts in Concurrency Structures -- Outline
 
+## Concepts
+
+Dependency graphs will never have multiple edges between the same nodes.
+
+https://en.wikipedia.org/wiki/Snapshot_isolation
+
+Snapshot Isolation is essentially the idea of grabbing the value of a piece of data, then checking that it matches the current value right before modifying it. If the value is different than at grab time, the thread will abort the operation.
+
+This is useful as threads may be scheduled in-and-out during their total procedural runtime.
+
+This can also be useful for when a thread will be modifying multiple pieces of data.
+
+https://en.wikipedia.org/wiki/ACID
+https://en.wikipedia.org/wiki/Concurrency_control#Database_transaction_and_the_ACID_rules
+
+### Freedoms
+
+These are design choices left up to the user. But, the concepts can be very easily accommodating to any of these scenarios ...
+
+- *Obstruction Freedom* (least strict)
+    + Non-blocking progress guarantee. At any point in time, a single thread is guaranteed to make progress if other threads are suspended. Partially completed operations must be abortable.
+    + Should threads have only completion points, or should they be allowed to have "abort" points as well. And does a dependency need to "retry" (perhaps with an exponential backoff) before a dependent is allowed to move ahead?
+    + Should aborts be "passed up" like completions are? In which, case if a node has a dependency reply with an abort, then it too must abort and pass the abort up the chain?
+    + Three signal classes: complete, aborted, abort-retry
+- *Lock Freedom*
+    + Per-object progress guarantees. It is guaranteed that some operation will always complete successfully in a finite number of steps.
+- *Wait Freedom* (most strict)
+    + Per-operation progress guarantees. Every operation is guaranteed to complete in a finite number of steps.
+
 ## Algorithm
+
+Graphs are global. Threads assigned to nodes in the graph can mark the nodes as either incomplete, complete, aborted, or abort-retry.
+
+SHOULD WE HAVE A *PARTIAL-ABORT* SIGNAL? And if so, how would it work?
 
 goRoutine (Access procedure) Constructor Function: configures goroutines (access procedures) with appropriate information at launch.
 
@@ -34,17 +67,6 @@ We do not guarantee consistency with our algorithm unless we place read-only thr
 ### Atomic Modification Sequences composition is Non-Commutative
 
 NOTE: combining trees only work because addition is a commutative operation. In arbitrary V-DDAGs we will need some form of composition for atomic modification sequences. That composition will be Non-Commutative, and will *only* depend on the topology of the DDAG i.e. ordering for nodes that are not dependent on each other will not matter (thus commutative), but if a node is dependent on another node then the dependency operation must occur before the dependent operation (non-commutative).
-
-### Freedoms
-
-How does this algorithm do in terms of:
-
-- *Obstruction Freedom* (least strict)
-    + Non-blocking progress guarantee. At any point in time, a single thread is guaranteed to make progress if other threads are suspended. Partially completed operations must be abortable.
-- *Lock Freedom*
-    + Per-object progress guarantees. It is guaranteed that some operation will always complete successfully in a finite number of steps.
-- *Wait Freedom* (most strict)
-    + Per-operation progress guarantees. Every operation is guaranteed to complete in a finite number of steps.
 
 ### Problem
 
