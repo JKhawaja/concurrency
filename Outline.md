@@ -45,6 +45,13 @@ These are design choices left up to the user. But, the concepts can be very easi
 
 Graphs are global. Threads assigned to nodes in the graph can mark the nodes with a signal state.
 
+**Extensional Lists vs. Intensional Conditions**
+Intensional Conditions would have to be part of a Breadth-First or Depth-First traversal, then every node would be compared against the conditions, and if it passed, would be considered acccessible by the UI. 
+
+Since these complete-traversal checks could be computationally expensive to perform everytime we want to execute an access procedure, we instead will prefer the creation of extensional lists that are attached to a UI that can be checked.
+
+Intensional Conditions can be used if the CDS is small enough to not become a processing burden.
+
 goRoutine (Access procedure) Constructor Function: configures goroutines (access procedures) with appropriate information at launch.
 
 Section will contain: Go Code Example (using goRoutine access to a shared data structure)
@@ -62,7 +69,7 @@ Section will contain: Go Code Example (using goRoutine access to a shared data s
 
 The total change to the structure can be considered completed if every node in the DDAG is marked completed.
 
-Threads will require to have a starting point and a completion point that can encompass a single modification or a sequence of modifications. A thread can have multiple completion points (similar to generator/async functions in ES6/7). 
+Threads will require to have a starting point and a completion point that can encompass a single modification or a sequence of modifications. A thread can have multiple completion points (similar to generator/async functions in ES6/7).
 
 A completion point allows a thread to mark a node in the DDAG as completed which communicates to its dependents that they can proceed. A thread stalls checking that its dependencies are complete so it can proceed past a completion point.
 
