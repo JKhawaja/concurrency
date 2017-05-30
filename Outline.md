@@ -28,11 +28,11 @@ This can also be useful for when a thread will be modifying multiple pieces of d
 
 ### Multiple CDS Systems
 
-Can UIs and a single UI DDAGs technically virtualize ALL CDSs across a system, since the UI graph is disjoint anyways, and this would also imply that UIs (since they are essentially just threads) could address CDS sub-graphs for *multiple* CDSs ...
+Can UIs and a single UI DDAG technically virtualize ALL CDSs across a system, since the UI graph is disjoint anyways, and this would also imply that UIs (since they are essentially just threads) could address CDS sub-graphs for *multiple* CDSs ...
 
 ### Freedoms
 
-These are design choices left up to the user. But, the concepts can be very easily accommodating to any of these scenarios ...
+These are design choices left up to an engineer. But, the concepts can be very easily accommodating to any of these scenarios ...
 
 - *Obstruction Freedom* (least strict)
     + Non-blocking progress guarantee. At any point in time, a single thread is guaranteed to make progress if other threads are suspended. Partially completed operations must be abortable.
@@ -41,14 +41,14 @@ These are design choices left up to the user. But, the concepts can be very easi
 - *Wait Freedom* (most strict)
     + Per-operation progress guarantees. Every operation is guaranteed to complete in a finite number of steps.
 
-## Algorithm
+## Code
 
 Graphs are global. Threads assigned to nodes in the graph can mark the nodes with a signal state.
 
 **Extensional Lists vs. Intensional Conditions**
-Intensional Conditions would have to be part of a Breadth-First or Depth-First traversal, then every node would be compared against the conditions, and if it passed, would be considered acccessible by the UI. 
+Intensional Conditions would have to be part of a Breadth-First or Depth-First traversal, then every node would be compared against the conditions, and if it passed, would be considered accessible by the UI. 
 
-Since these complete-traversal checks could be computationally expensive to perform everytime we want to execute an access procedure, we instead will prefer the creation of extensional lists that are attached to a UI that can be checked.
+Since these complete-traversal checks could be computationally expensive to perform every time we want to execute an access procedure, we instead will prefer the creation of extensional lists that are attached to a UI that can be checked.
 
 Intensional Conditions can be used if the CDS is small enough to not become a processing burden.
 
@@ -83,6 +83,16 @@ The assignment function will assign a single thread per Real Independent and Vir
 
 We do not guarantee consistency with our algorithm unless we place read-only threads into a V-DDAG, and then consistency is defined by the ordering of read vs. write threads in the V-DDAG.
 
+### Immutability
+
+UIs are not necessarily immutable, although we could have immutable UIs if we wanted to not allow structure modification access types to change that UI.
+
+An UI can only be immutable if it is strictly-unique i.e. iff it only accesses nodes and edges that no other UI can access.
+
+One of the main problems here is that if a UI covers an part of the structure that another UI addresses, then the other UI could modify the underlying CDS structure and this UI would then technically be changed.
+
+This is why it is better to assign immutability to CDS nodes that way regardless of what UI a node or edges is in, if it is immutable it can never be changed by any access procedure.
+
 ### Atomic Modification Sequences composition is Non-Commutative
 
 NOTE: combining trees only work because addition is a commutative operation. In arbitrary V-DDAGs we will need some form of composition for atomic modification sequences. That composition will be Non-Commutative, and will *only* depend on the topology of the DDAG i.e. ordering for nodes that are not dependent on each other will not matter (thus commutative), but if a node is dependent on another node then the dependency operation must occur before the dependent operation (non-commutative).
@@ -94,11 +104,22 @@ NOTE: combining trees only work because addition is a commutative operation. In 
     + We could implement a form of preemption where a thread waits a maximum number of time before moving ahead beyond an unfinished thread, and the thread that has not completed is removed and a new thread assigned to its position. (-- MAKE BETTER)
 - *Recursive Threads* (assigned to a single node) for resolving seemingly "cyclic" dependencies in dependency graphs.
 
+### Pass by Reference
+- We ALWAYS pass the following by reference ONLY (post-creation):
+    + CDS
+    + CDS Node
+    + CDS Edge
+    + Section
+
 ## Memory Management
 
 Section will contain: Rust Code (showing custom memory management for DDAG concurrency approach)
 
 - Memory Management techniques for Concurrent Data Structures while this proposed algorithm is in use (??)
+
+The global dependency graph could manage its own memory i.e. check when a virtual nodes life is complete and deallocate the memory for the node and all of its edges.
+
+A CDS object could manage its own memory: everytime a CDS node or edge was removed it could deallocate the memory. -- This could actually be the functionality of Access Types (procedures).
 
 ## Conclusions
 

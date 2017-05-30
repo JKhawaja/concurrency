@@ -1,6 +1,6 @@
 \section{Concepts}
 
-We begin our discussion around the crux of avoiding undesirable behavior: \textit{Ordering} (in the literature: \textit{linearization}).
+We begin our discussion around the crux of avoiding undesirable behavior: \textit{Ordering} (in the literature: \textit{linearization} and \textit{serialization}).
 
 In our definition of a CDS (\ref{cds}), we discussed reading and writing data to a structure as well as changing the structure of the CDS itself. We will label all of these processes as: \textit{access types}. More specifically: these are procedural types. Every time we try to execute an access type we will call this an: \textit{access procedure}.
 
@@ -224,7 +224,7 @@ The final thing we would like to mention in this dependencies section is the fac
 
 \subsection{Invariance}
 
-The final part of discussing disjoint directed acyclic graphs and their equivalent dependencies lists is determining if an access type is allowed or not allowed to be used on a specific UI (or even at a specific time).
+Another part of discussing disjoint directed acyclic graphs and their equivalent dependencies lists is determining if an access type is allowed or not allowed to be used on a specific UI (or even at a specific time).
 
 Boundary Nodes on our UI dependency graph can be useful for determining what access types are allowed for a UI. For example, it might be simpler to allow CDS-structure modifying access types for boundary UI nodes only: specifically appending and pruning sub-graphs to the CDS. 
 

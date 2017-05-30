@@ -1,0 +1,13 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Concepts}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Spatial Dependencies}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Temporal Dependencies}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Atomicity}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{Dynamic Dependencies}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.5}{Invariance}{section.2}% 7
+\BOOKMARK [2][-]{subsection.2.6}{Partial Orderings}{section.2}% 8
+\BOOKMARK [2][-]{subsection.2.7}{Review}{section.2}% 9
+\BOOKMARK [1][-]{section.3}{Code}{}% 10
+\BOOKMARK [1][-]{section.4}{Memory Management}{}% 11
+\BOOKMARK [1][-]{section.5}{Formal Verification}{}% 12
+\BOOKMARK [1][-]{section.6}{Conclusion}{}% 13

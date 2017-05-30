@@ -1,0 +1,26 @@
+TODO:
+  ✔ Move all Notes into appropriate position in outline. @done (17-04-25 17:08)
+  ✔ Go over Outline to make sure flow of ideas is as it should be @done (17-05-03 15:53)
+    ✔ Flow of Definitions, Diagrams, Code, etc. @done (17-05-03 15:53)
+  ✔ Finish Partial Orderings sub-section @done (17-05-06 20:01)
+  ✔ Final check/edit of DDAG section before working on code @done (17-05-06 20:29)
+    ✔ Edit Corollary 2.1 (change DDAG to DAG) @done (17-05-06 20:29)
+  ☐ Redefine a Combining tree algorithm using Concepts (in 'Code' section)
+    ☐ Combining Tree has a lot of threads passing information back and forth, but this may not be necessary ...
+  ☐ Create web server threads example for VDAGs (!!) -- in concepts section
+  ☐ In partial orderings section: add an example of an instance where web server threads can be ordered due to some system requirement reason ...
+      ☐ e.g. not allowing a read on an object until something else happens, etc.
+  ☐ Order the package dependencies in concurrency.sty alphabetically
+
+Corrections and Additions:
+  ✔ Need formal definition for DDAG (Disjoint Directed Acycic Graph) in Spatial Dependencies sub-section @done (17-05-04 16:36)
+  ✔ VUIs do NOT need to be unique  (either relative to real UIs or virtual UIs) in the sense that Real UIs are "unique" @done (17-05-05 16:59)
+  ✔ Temporal DDAGs will NOT be disjoint since every node will at least be connected to the Spatial UI Node as a root. @done (17-05-05 17:49)
+
+ Code:
+   ✔ Start a GitHub Repo for the Go Code @done (17-05-09 15:22)
+       ✔ Name it: "Fabric" or "Quipu" / "Kipu" @done (17-05-09 15:22)
+   ☐ Examples: Avoiding the problems found here: http://www.myreadingroom.co.in/notes-and-studymaterial/65-dbms/532-concurrency-problems.html
+     ☐ Lost Updates
+     ☐ Uncommitted Data
+     ☐ Inconsistent Retrievals
