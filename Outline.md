@@ -43,7 +43,7 @@ These are design choices left up to an engineer. But, the concepts can be very e
 
 ## Code
 
-Graphs are global. Threads assigned to nodes in the graph can mark the nodes with a signal state.
+Graphs are global. Threads that are assigned nodes from the graph can cause the nodes to change state and signal that state.
 
 **Extensional Lists vs. Intensional Conditions**
 Intensional Conditions would have to be part of a Breadth-First or Depth-First traversal, then every node would be compared against the conditions, and if it passed, would be considered accessible by the UI. 
