@@ -1,6 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kd}{type} \PYG{n+nx}{AccessProcedure} \PYG{k+kd}{struct}\PYG{p}{\PYGZob{}}
-	\PYG{n+nx}{A} \PYG{n+nx}{AccessType}
-	\PYG{n+nx}{UID} \PYG{k+kt}{int} \PYG{c+c1}{// unique\PYGZhy{}independent id}
-\PYG{p}{\PYGZcb{}}
-\end{Verbatim}

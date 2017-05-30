@@ -1,8 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kd}{type} \PYG{n+nx}{RealNode} \PYG{k+kd}{struct}\PYG{p}{\PYGZob{}}
-	\PYG{n+nx}{SpatialDependents} \PYG{k+kt}{uint}
-	\PYG{n+nx}{TemporalDependents} \PYG{k+kt}{uint}
-	\PYG{n+nx}{SpatialDependencies} \PYG{k+kt}{uint}
-	\PYG{n+nx}{TemporalDependencies} \PYG{k+kt}{uint}
-\PYG{p}{\PYGZcb{}}
-\end{Verbatim}
