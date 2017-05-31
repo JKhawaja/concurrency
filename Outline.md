@@ -20,11 +20,15 @@ These are design choices left up to an engineer. But, the concepts can be very e
 - *Wait Freedom* (most strict)
     + Per-operation progress guarantees. Every operation is guaranteed to complete in a finite number of steps.
 
+### Problem
+
+- Technically, our concepts are not free of "blocking"
+    + In that, threads can still stall internally and cause dependents to stall forever as well.
+    + IDEA: implement a form of preemption where a thread waits a maximum amount of time on a dependency before moving ahead, and possibly the thread that has not completed is removed and a new thread assigned to its position.
+
 ## Code
 
-Graphs are global. Threads that are assigned nodes from the graph can cause the nodes to change state and signal that state.
-
-###Extensional Lists vs. Intensional Conditions
+### Extensional Lists vs. Intensional Conditions
 
 Intensional Conditions: would have to be part of a Breadth-First or Depth-First traversal, where every node and edge in the CDS would be compared against the defined condition, and if it passed, would be considered accessible by the UI.
 
@@ -32,7 +36,7 @@ Since these complete-traversal checks could be computationally expensive to perf
 
 Intensional Conditions can be used if the CDS is small enough to not become a processing burden.
 
-### Assignment Process
+### Assignment Function
 
 goRoutine Construction: configures goroutines (access procedures) with appropriate information at launch.
 
@@ -43,6 +47,9 @@ What happens if we want to use more threads than there are unique independents? 
 What happens if we have fewer threads than UIs? In this scenario, we are assuming that each thread can be assigned multiple UIs, and in this case the thread must have an internal degree of consistency defined. The thread must internally perform operations in their dependency order. (algorithmically: this just changes the way we construct goRoutines before launching them -- we will focus on making sure that all modifications are pre-ordered within the goroutine beforehand).
 
 The assignment function will assign a single (V)UI to each thread.
+
+- In a distributed environment it is likely that the Assignment Function will evolve into something similar to a: Distributed Lock Manager
+    * https://en.wikipedia.org/wiki/Distributed_lock_manager
 
 ### Uses of Signals
 
@@ -62,18 +69,16 @@ One of the main problems here is that if a UI covers an part of the structure th
 
 This is why it is better to assign immutability to CDS nodes that way regardless of what UI a node or edges is in, if it is immutable it can never be changed by any access procedure.
 
-### Atomic Modification Sequences composition is Non-Commutative
+### Acidic Procedures composition is Non-Commutative
 
-NOTE: combining trees only work because addition is a commutative operation. In arbitrary V-DDAGs we will need some form of composition for atomic modification sequences. That composition will be Non-Commutative, and will *only* depend on the topology of the DDAG i.e. ordering for nodes that are not dependent on each other will not matter (thus commutative), but if a node is dependent on another node then the dependency operation must occur before the dependent operation (non-commutative).
+NOTE: combining trees only work because addition is a commutative operation.
 
-### Problem
+In arbitrary DGs we will need some form of composition for acidic procedure sequences. That composition will be non-commutative, and will *only* depend on the topology of the DG i.e. the ordering of nodes that are not dependent on each other will not matter (thus commutative), but if a node is dependent on another node then the dependency operation must occur before the dependent operation (non-commutative). 
 
-- Technically, our algorithm is not free of "blocking"
-    + In that, threads can still stall internally and cause dependents to stall forever as well.
-    + We could implement a form of preemption where a thread waits a maximum number of time before moving ahead beyond an unfinished thread, and the thread that has not completed is removed and a new thread assigned to its position. (-- MAKE BETTER)
+This means that threads composed of multiple acidic procedures must ensure that acidic operations performed by the dependent thread do not occur before ALL acidic procedures in the dependency thread, that the acidic operation is dependent on, have occured. This implies that dependency relationships between threads can be more fine-grained (due to signaling) than just a hard "wait-till-dependency-completes" relationship.
 
 ### Pass by Reference
-s
+
 - We ALWAYS pass the following by reference ONLY (post-creation):
     + CDS
     + CDS Node
@@ -87,11 +92,6 @@ Section will contain: Rust Code (showing custom memory management for DDAG concu
 The global dependency graph could manage its own memory i.e. check when a virtual nodes life is complete and deallocate the memory for the node and all of its edges.
 
 A CDS object could manage its own memory: everytime a CDS node or edge was removed it could deallocate the memory. -- This could actually be the functionality of Access Types (procedures).
-
-## Conclusions
-
-- In a distributed environment it is likely that the Assignment Function will evolve into something similar to a: Distributed Lock Manager
-    * https://en.wikipedia.org/wiki/Distributed_lock_manager
 
 ## References
 
