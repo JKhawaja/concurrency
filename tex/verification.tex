@@ -7,3 +7,14 @@ We could still use a formal verification section in the paper that briefly discu
 The section will describe a rudimentary approach to: defining approaches to verification.
 
 For example, if we have a CDS system that we design using the `fabric` package (or a similar dependency) ...
+
+\subsection{Built-In Verification Methods}
+
+There are already some built-in verification methods in the fabric package. For dependency graphs we check things like:
+
+\begin{itemize}
+	\item CycleDetect(): which ensures that the graph is a DAG
+	\item TotalityUnique(): which ensures that all UIs are totality-unique
+	\item Covered(): which ensures that every node and edge in the CDS has been addressed
+	\item CheckVUIDependents()
+\end{itemize}

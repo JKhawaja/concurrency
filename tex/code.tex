@@ -5,3 +5,28 @@ How are we going to assign unique-independent modifications to a thread? In othe
 We will also address the atomicity of operations and sequence of operations as defined \textit{internally} to a thread.
 
 Since a leaf boundary node is a node without dependencies it can always iterate through its atomic operations infinitely often without waiting for other nodes.
+
+\subsection{VDGs}
+
+\begin{con-def}[Virtual Dependency Graph]
+	\label{vdg-code}
+ A temporary secondary dependency graph, which behaves independent of our main dependency graph, and only behaves on some given subset of UIs.
+\end{con-def}
+
+A VDG is basically equivalent to an internal partial-ordering of operations within a thread.
+
+Except, that if we consider a VDG a thread, then we have to consider it as a thread node which has no dependents or dependencies. Thus, a VDG is like a virtualized thread node that allows us to manipulate multiple (V)UIs instead of only a single V(UI).
+
+VDGs can present a potential concurrency-safety issue if you use them without taking into consideration the assumptions of what they are.
+
+Make sure that all VDG operations are safe to operate independently from the main dependency graph.
+
+In summation, using a VDG is making the following assumptions -- all access types that the VDG will be using are okay to be used without dependency management from our graph. As well as the fact that all VDG operations may occur at any given time independent of our global graph. They are simply a temporary secondary dependency graph that will operate on our CDS independent of our main graph.
+
+\subsection{CDS Mutation}
+
+The answer to CDS mutation is that the ordering of nodes as chosen by the developer should always be such that mutation access procedures are ordered before or after a read-value or write-value operation e.g. the priority of a read-value and write-value procedure could be greater than the priority of a mutation procedure.
+
+So, while it is possible to use fabric to perform dirty reads and writes, etc. It is not the purpose of fabric to be full-proof, but rather to empower the developer to more easily implement full-proof (as defined by the spec of the system) concurrency control in their software.
+
+Actually, the purpose of behavior avoidance is *not* to disallow a behavior from being designed into the system, but rather to be able to verify more easily that a certain behavior (or lack of behavior) exists in the system design.

@@ -116,33 +116,33 @@ type AccessProcedure struct{
 }
 \end{minted}
 
-\subsection{Atomicity}
+\subsection{Acidity}
 
 We still have to come back around to combining our ordering of dependencies with the processes in our system. But, first we should consider when two access procedures can be simply sequentially ordered. If some set of access procedures which apply to the same UI must be linearly ordered then we can consider the sequential composition of those procedures as being a new access procedure.
 
 This can technically also apply to any sequence of access procedures (assigned to the same UI) that are not dependent on one another. If we want to reduce the total number of individual procedures in our system (i.e. reduce the number of nodes in our temporal dependency graph for a UI) then we can combine access procedures that are linearly dependent (or entirely independent) into a single access procedure.
 
-The allowance for this combination is what we call: \textit{atomicity}.
+The allowance for this combination is what we call: \textit{acidity}.
 
-\begin{con-def}[Atomic Procedures]
-	\label{atomic-procedures}
-	Any access procedure or sequence of access procedures that appear to the rest of the system as a single operation on a UI are called: \textit{atomic procedures}.
+\begin{con-def}[Acidic Procedures]
+	\label{acidic-procedures}
+	Any access procedure or sequence of access procedures that appear to the rest of the system as a single operation on a UI are called: \textit{acidic procedures}.
 \end{con-def}
 
-All access procedures \textit{should already be} atomic procedures. But, arbitrary sequences of procedures are not necessarily demanded to be atomic. We want to specifically classify sequences of access procedures that \textit{are} atomic.
+All access procedures \textit{should already be} acidic procedures. But, arbitrary sequences of procedures are not necessarily demanded to be acidic. We want to specifically classify sequences of access procedures that \textit{are} acidic.
 
 \begin{con-def}[Thread]
 	\label{thread}
-	A \textit{thread} is any sequence of access procedures that can be classified as a single atomic procedure. A thread can also be a  sequence of atomic procedures (which may be sequences of access procedures in of themselves).
+	A \textit{thread} is any sequence of access procedures that can be classified as a single acidic procedure. A thread can also be a sequence of acidic procedures (which may be sequences of access procedures in of themselves).
 \end{con-def}
 
 In terms of a dependency graph: a thread is assigned to a node and is also assigned to the node's dependencies iff the dependent node has only one dependency \textit{and} the dependency has only one dependent. Any sequence of nodes each with at most one dependency and one dependent can be "combined" and considered: a single Thread.
 
-Using threads makes our virtualization complexes more succinct, as any and all sequences of access procedures are either necessarily ordered or are considered single atomic procedures. It also becomes that every node in our disjoint dependency graphs are now a thread.
+Using threads makes our virtualization complexes more succinct, as any and all sequences of access procedures are either necessarily ordered or are considered single acidic procedures. It also becomes that every node in our disjoint dependency graphs are now a thread.
 
 \begin{props}[Nodes are Threads]
 	\label{nodes-are-threads}
-	Every node in our temporal dependency graphs is a thread (iff we maintain that all access procedures must be atomic procedures).
+	Every node in our temporal dependency graphs is a thread (iff we maintain that all access procedures must be acidic procedures).
 \end{props}
 
 \begin{con-cor}[Thread DAGs]
@@ -158,7 +158,7 @@ In this case the threads will need to have internal sequential consistency. In o
 
 If the UIs that a thread is assigned to have no dependency relationship with each other (even composed dependency arrows) then the thread will not need to be ordered internally. Sometimes, ensuring this simple property makes the concurrency of the system simpler to implement and verify.
 
-In the next section of this paper we will discuss how we will ensure atomicity for access procedures. But, for now, we simply hold this assumption as a given precondition.
+In the next section of this paper we will discuss how we will ensure acidity for access procedures. But, for now, we simply hold this assumption as a given precondition.
 
 \subsection{Dynamic Dependencies}
 
@@ -171,7 +171,7 @@ To solve these dynamic situations we can introduce the idea of a \textit{Virtual
 	A dependency directed acyclic graph that can apply to one or more UIs for our CDS, but whose lifespan must be less than the lifespan of the CDS (system). Used to define dynamic dependencies in a concurrent system.
 \end{con-def}
 
-A VDG will always have a root node that connects to each UI that the VDG involves. Thus, a VDG can never be a disjoint graph in of itself. The root node represents the final atomic procedure that the VDG will finish before completing its lifecycle.
+A VDG will always have a root node that connects to each UI that the VDG involves. Thus, a VDG can never be a disjoint graph in of itself. The root node represents the final acidic procedure that the VDG will finish before completing its lifecycle.
 
 For example, what if a particular write on one UI needed to happen before a different write on another UI, but that this was \textit{not} necessarily true for \textit{all} writes for these two UIs?
 
@@ -185,7 +185,7 @@ Well, in our previous mentioned example, if that VDG that applied to two UIs las
 
 And if the VDG had only applied to one of the UIs then it would have represented a permanent temporal DAG for similar reasons. The only thing that makes a VDG dynamic is the fact that it's lifespan is always less then that of the CDS.
 
-Similar to the discussion in the Atomicity subsection on assigning the same thread to multiple UIs, assigning a thread to multiple VDGs can possibly lead to an underutilized concurrency potential. Threads that are assigned to VDGs are essentially virtual themselves, as it is their lifecycle that is the lifecycle of a node in a VDG.
+Similar to the discussion in the Acidity subsection on assigning the same thread to multiple UIs, assigning a thread to multiple VDGs can possibly lead to an underutilized concurrency potential. Threads that are assigned to VDGs are essentially virtual themselves, as it is their lifecycle that is the lifecycle of a node in a VDG.
 
 Another dynamic property of a CDS system we want to briefly discuss is the idea of: \textit{dynamic UIs}.
 
