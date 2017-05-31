@@ -366,7 +366,12 @@ The key point is that priorities of access types automatically grants us an orde
 	\textit{Temporal Threads} are threads that last the lifespan of the CDS and are attached to a single UI (in this case temporal threads represent all (permanent) threads beyond the initial spatial thread attached to a UI).
 \end{con-def}
 
-\begin{con-def}[Virtual Threads]
+\begin{con-def}[Spawn Threads]
+	\label{temporal-threads}
+	\textit{Virtual Spawn Threads} are threads are spawned by temporal threads, attached to the same UI, have lifespans shorter than the CDS, and are commonly used to avoid cyclic dependencies by becoming a temporary dependent of one of the temporal threads dependent nodes.
+\end{con-def}
+
+\begin{con-def}[VDG Threads]
 	\label{virtual-threads}
-	\textit{Virtual Threads} are threads that have a lifespan shorter than the CDS (or "Thread Node" that they are a dependency of) and can be assigned to multiple UIs.
+	\textit{VDG Threads} are threads that have a lifespan shorter than the CDS (or "Thread Node" that they are a dependency of) and can be assigned to multiple UIs. But VDGs are processed independently
 \end{con-def}

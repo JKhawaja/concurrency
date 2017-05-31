@@ -15,6 +15,12 @@
 ## TODO
 *.todo
 
+## Literature Directory
+Literature/
+
+## Outline
+Outline.md
+
 ## Intermediate documents:
 *.dvi
 *-converted-to.*
