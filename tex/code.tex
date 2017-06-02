@@ -2,17 +2,19 @@
 
 The discussion in this section will be based around an open source package implementation of the ideas from the Concept section which can be found here: \url{https://github.com/JKhawaja/fabric}.
 
-How are we going to assign unique-independent modifications to a thread? In other words, how will we ensure that a thread is only allowed to make modifications to a single unique-independent?
-
-We will also address the atomicity of operations and sequence of operations as defined \textit{internally} to a thread.
-
-Since a leaf boundary node is a node without dependencies it can always iterate through its atomic operations infinitely often without waiting for other nodes.
-
 \subsection{VDGs}
+
+Virtual dependency graphs can be used to tackle two types of system designs. The first one is \textit{Temporary Independent Processing}. In other words, a sub-graph of our global DDAG executing independent of the rest of the graph. This is of course equivalent to all of the nodes in this subgraph only having dependency relationships with other nodes in the subgraph.
+
+The way this works is by allowing Virtual nodes in the VDG to have access to some given UI. But, nodes in the VDG do not all have to have access to the same UI. And this fact leads us to a second common use of VDGs in system designs: \textit{Temporary Partial Dependencies}.
+
+A partial dependency between two UIs exists when only certain access procedures in the dependency UI induce a response in the dependent UI. A VDG solves this case when the partial dependency is temporary. Often a VDG is used when e.g. certain read operations for one UI must occur only after certain write operations for another UI have occured, and that this must only happen some of the time.
+
+In this way we can redefine a VDG the following way:
 
 \begin{con-def}[Virtual Dependency Graph]
 	\label{vdg-code}
- A temporary secondary dependency graph, which behaves independent of our main dependency graph, and only behaves on some given subset of UIs.
+ 	A temporary secondary dependency graph, which behaves independent of our main dependency graph, and only behaves on some given subset of UIs.
 \end{con-def}
 
 A VDG is basically equivalent to an internal partial-ordering of operations within a thread.
@@ -27,7 +29,7 @@ In summation, using a VDG is making the following assumptions -- all access type
 
 \subsection{CDS Mutation}
 
-The answer to CDS mutation is that the ordering of nodes as chosen by the developer should always be such that mutation access procedures are ordered before or after a read-value or write-value operation e.g. the priority of a read-value and write-value procedure could be greater than the priority of a mutation procedure.
+The answer to CDS mutation (adding/removing nodes and edges) is that the ordering of nodes as chosen by the developer should always be such that mutation access procedures are ordered before or after a read-value or write-value operation e.g. the priority of a read-value and write-value procedure could be greater than the priority of a mutation procedure.
 
 So, while it is possible to use fabric to perform dirty reads and writes, etc. It is not the purpose of fabric to be full-proof, but rather to empower the developer to more easily implement full-proof (as defined by the spec of the system) concurrency control in their software.
 

@@ -55,7 +55,9 @@ Unique-Independents can obviously have external dependencies i.e. be dependent o
 	The set of UIs and their dependencies on one another forms a \textit{disjoint directed-acyclic graph} (ddag) i.e. a disjoint dependencies graph. It is disjointed since UIs are not required to have dependency relations with one another and thus some UIs (nodes) will not have edges in the graph.
 \end{con-def}
 
-Although, since UIs do not have to have other UIs as dependencies it will be simpler to consider: a dependencies list.
+Also note that dependency graphs will never have multiple edges between any two nodes.
+
+But since UIs do not have to have other UIs as dependencies it will be simpler to consider: a dependencies list.
 
 \begin{con-def}[Dependency List]
 	\label{dependency-list}
@@ -234,6 +236,12 @@ But, we should first formalize what boundary nodes are and then look at an examp
 	\label{leaf-boundaries}
 	Any real DDAG node which has no dependencies is considered a \textit{leaf boundary} node on that DDAG.
 \end{con-def}
+
+\begin{con-lem}[]
+	\label{leaf-boundaries-infinite}
+	Since a leaf boundary node is a node without dependencies it can always iterate through its acidic operations infinitely often without waiting for other nodes.
+\end{con-lem}
+
 
 Every real (spatial and temporal) node can be represented by 4 numbers: spatial dependents, temporal dependents, spatial dependencies, and temporal dependencies.
 

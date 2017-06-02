@@ -2,12 +2,10 @@
 
 ## Concepts
 
-Dependency graphs will never have multiple edges between the same nodes.
+### VDGs
 
-### Signals and Signal Responses
-
-+ Should threads be required to have defined responses for each Signal response type? I.e. each thread would have a 'Started', 'Completed', 'Aborted', etc. signal response.
-    * Example Response: abort chains/trees -- once a node aborts an operation, then all dependent nodes abort their operations, and the dependent nodes dependents do the same, etc.
+- Independent Processing (Temporary)
+- Partial Dependencies (Temporary)
 
 ### Freedoms
 
