@@ -2,37 +2,13 @@
 
 ## Concepts
 
-### VDGs
-
-- Independent Processing (Temporary)
-- Partial Dependencies (Temporary)
-
-### Freedoms
-
-These are design choices left up to an engineer. But, the concepts can be very easily accommodating to any of these scenarios ...
-
-- *Obstruction Freedom* (least strict)
-    + Non-blocking progress guarantee. At any point in time, a single thread is guaranteed to make progress if other threads are suspended. Partially completed operations must be abortable.
-- *Lock Freedom*
-    + Per-object progress guarantees. It is guaranteed that some operation will always complete successfully in a finite number of steps.
-- *Wait Freedom* (most strict)
-    + Per-operation progress guarantees. Every operation is guaranteed to complete in a finite number of steps.
-
 ### Problem
 
 - Technically, our concepts are not free of "blocking"
-    + In that, threads can still stall internally and cause dependents to stall forever as well.
+    + In that, threads can still stall internally and cause dependents to stall forever as well (as dependents are often waiting on a signal from a dependency -- but this is the very definition of a dependency, that the dependent is blocked -- to some degree -- until the dependency completes some operation.)
     + IDEA: implement a form of preemption where a thread waits a maximum amount of time on a dependency before moving ahead, and possibly the thread that has not completed is removed and a new thread assigned to its position.
 
 ## Code
-
-### Extensional Lists vs. Intensional Conditions
-
-Intensional Conditions: would have to be part of a Breadth-First or Depth-First traversal, where every node and edge in the CDS would be compared against the defined condition, and if it passed, would be considered accessible by the UI.
-
-Since these complete-traversal checks could be computationally expensive to perform every time we want to execute an access procedure, we instead will prefer the creation of extensional lists that are attached to a UI that can be used.
-
-Intensional Conditions can be used if the CDS is small enough to not become a processing burden.
 
 ### Assignment Function
 
@@ -63,7 +39,7 @@ UIs are not necessarily immutable, although we could have immutable UIs if we wa
 
 An UI can only be immutable if it is strictly-unique i.e. iff it only accesses nodes and edges that no other UI can access.
 
-One of the main problems here is that if a UI covers an part of the structure that another UI addresses, then the other UI could modify the underlying CDS structure and this UI would then technically be changed.
+One of the main problems here is that if a UI covers a part of the structure that another UI addresses, then the other UI could modify the underlying CDS structure and this UI would then technically be changed.
 
 This is why it is better to assign immutability to CDS nodes that way regardless of what UI a node or edges is in, if it is immutable it can never be changed by any access procedure.
 
@@ -93,10 +69,6 @@ A CDS object could manage its own memory: everytime a CDS node or edge was remov
 
 ## References
 
-- Concurrent Data Structures
 - Concurrencykit.org - Lock-Free Algorithms
-- Deadlocks: http://www.javacreed.com/what-is-deadlock-and-how-to-prevent-it/
 - Dependency Graph: https://en.wikipedia.org/wiki/Dependency_graph
-- Topological Sorting: https://en.wikipedia.org/wiki/Topological_sorting
-- Cycle Detection
 - Consistency Patterns: http://www.cs.colostate.edu/~cs551/CourseNotes/Consistency/TypesConsistency.html
