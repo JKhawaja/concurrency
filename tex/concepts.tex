@@ -74,7 +74,7 @@ So while, a UI can be completely subsumed by another UI spatially, it will never
 
 This may seem like a unique-independent that subsumes UIs that have dependencies which are also subsumed UIs, conflicts with our definition (\ref{independents}) of an unique-independent.
 
-However, what we have to notice is that a unique-independent is evaluated separately from other UIs i.e. a UI that subsumes other UIs and their dependencies is only allowed to be addressed after all those other UIs have been addressed.
+However, what we have to notice is that this unique-independent can/should be evaluated separately from other UIs i.e. a UI that subsumes other UIs and their dependencies should only be addressed after all those other UIs have been addressed.
 
 So, while an independent has ``no spatial dependencies'' it can still subsume UI-dependencies. 
 
@@ -332,6 +332,12 @@ In fact, each UI could have been assigned a list of \textit{immutable} CDS sub-g
 
 \begin{con-aside}
 Immutability is only a kind of invariance. A low-resolution invariance which blanket-denies all modification access types.
+
+UIs are not necessarily immutable, although we could have immutable UIs if we wanted to not allow structure modification access types to change that UI.
+
+An UI can only be immutable if it is strictly-unique i.e. iff it only accesses nodes and edges that no other UI can access. The reason for this is that if a UI covers a part of the structure that another UI addresses, then the other UI could modify the underlying CDS structure and this UI would then technically be changed.
+
+This is why it is better to assign immutability to CDS nodes. That way, regardless of what UI a node or edge is in, if it is immutable it can never be changed by any access procedure.
 \end{con-aside}
 
 Every node in our CDS Graph $\mathsf{G}$ has a set of access types $\mathcal{A}$ that it is invariant under. Either the CDS node and its value remain invariant under an access type (e.g. a ``read'' or "copy" access type), or only the node itself remains invariant (e.g. a ``write'' or "increment" access type). Otherwise, the node and the value are mutable (e.g. in a ``delete-subgraph'' access type).
