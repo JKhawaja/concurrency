@@ -1,4 +1,4 @@
-# Avoiding Conflicts in Concurrency Structures -- Outline
+# Avoiding Conflicts in Concurrency Structures -- Notes
 
 ## Concepts
 

@@ -16,7 +16,7 @@
 *.todo
 
 ## Literature Directory
-Literature/
+Literature/**
 
 ## Outline
 Outline.md
