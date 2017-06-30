@@ -1,26 +1,22 @@
 # Avoiding Conflicts in Concurrency Structures -- Notes
 
-## Concepts
-
-### Problem
+## Problem
 
 - Technically, our concepts are not free of "blocking"
     + In that, threads can still stall internally and cause dependents to stall forever as well (as dependents are often waiting on a signal from a dependency -- but this is the very definition of a dependency, that the dependent is blocked -- to some degree -- until the dependency completes some operation.)
     + In other words, the topology of a dependency graph *defines* the *degree of blocking* that the program will have.
     + IDEA: implement a form of preemption where a thread waits a maximum amount of time on a dependency before moving ahead, and possibly the thread that has not completed is removed and a new thread assigned to its position.
 
-## Code
+## Define the Commutativity of Access Types
 
-### Acidic Procedures composition is Non-Commutative
+Dependency defines if the sequential composition of two access procedures is commutative or not.
 
-NOTE: combining trees only work because addition is a commutative operation.
+Independent = Commutative, Dependent = Not-Necessarily-Commutative. 
 
-In arbitrary DGs we will need some form of composition for acidic procedure sequences. That composition will be non-commutative, and will *only* depend on the topology of the DG i.e. the ordering of nodes that are not dependent on each other will not matter (thus commutative), but if a node is dependent on another node then the dependency operation must occur before the dependent operation (non-commutative). 
+A single access procedure, such as adding two integers, can be commutative in of itself and set a precedence for how to structure your dependency graph. For example: in a combining tree none of the leaf node threads need to be dependent on each other because they are all just adding two integers and can thus be arbitrarily composed.
 
-This means that threads composed of multiple acidic procedures must ensure that acidic operations performed by the dependent thread do not occur before ALL acidic procedures in the dependency thread, that the acidic operation is dependent on, have occured. This implies that dependency relationships between threads can be more fine-grained (due to signaling) than just a hard "wait-till-dependency-completes" relationship.
+A useful technique: define which pairs of Access Types are commutative and whether or not an Access Type is commutative in of itself. This will help determine what *must* be ordered and what mustn't be ordered.
 
-## References
+This can be useful when designing posets.
 
-- Concurrencykit.org - Lock-Free Algorithms
-- Dependency Graph: https://en.wikipedia.org/wiki/Dependency_graph
-- Consistency Patterns: http://www.cs.colostate.edu/~cs551/CourseNotes/Consistency/TypesConsistency.html
+The number of access procedures trying to access the same UI define an n-ary operation on that UI. Addition is a binary operation, but it could very well be that we have two writes and a read that need to be ordered: we define the rules for this 3-ary operation as w1*w2*r != r*w1*w2 != w1*r*w2, etc. or the rules could be w2*r*w1 == w1*r*w1, etc.
